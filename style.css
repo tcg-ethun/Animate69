@@ -26,7 +26,7 @@
 /* Dark mode */
 [data-theme="dark"] {
     --bg-color: #000000;
-    --card-bg: #212140;
+    --card-bg: #03032f;
     --text-color: #e5e5e5;
     --header-bg: #003a82;
     --header-text: #ffffff;
@@ -80,7 +80,8 @@ header {
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
-    background-color: var(--card-bg);
+    background-color: black;
+    /* background-color: var(--card-bg); */
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -93,9 +94,6 @@ header {
     transition: background-color 0.3s;
 }
 
-.theme-toggle:hover {
-    background-color: var(--button-hover);
-}
 
 .container {
     max-width: 1200px;

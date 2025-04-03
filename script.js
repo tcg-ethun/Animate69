@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update the theme toggle icon based on current theme
     function updateThemeIcon(theme) {
-        themeToggle.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+        themeToggle.innerHTML = theme === 'dark' ? '⛅' : '🌙';
     }
 
     // Toggle between light and dark themes
