@@ -24,14 +24,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Toggle between light and dark themes
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
-    }
+    // function toggleTheme() {
+    //     const currentTheme = document.documentElement.getAttribute('data-theme');
+    //     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    //     document.documentElement.setAttribute('data-theme', newTheme);
+    //     localStorage.setItem('theme', newTheme);
+    //     updateThemeIcon(newTheme);
+    // }
 
     // Initialize theme
     initTheme();
@@ -163,3 +164,41 @@ document.addEventListener('DOMContentLoaded', function() {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 });
+
+
+ 
+ 
+ // Sample photo data (replace with your real data)
+ const photos = [
+    {
+        src: 'Raw/Nature/pic5.jpg',
+         category: 'nature'
+     },
+     {
+        src: 'Raw/Nature/pic6.jpg',
+         category: 'nature'
+     },
+     {
+        src: 'Raw/Nature/pic7.jpg',
+         category: 'nature'
+     },
+     
+     {
+        src: 'Raw/Nature/pic8.jpg',
+         category: 'nature'
+     },
+    {
+        src: 'Raw/Nature/pic2.png',
+        category: 'nature'
+    },
+    {
+          src: 'Raw/Nature/pic3.png',
+        category: 'nature'
+    },
+    {
+       src: 'Raw/Nature/pic4.png',
+        category: 'nature'
+    },
+
+    
+];
