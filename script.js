@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoryTitle = document.querySelector('.category-title');
     const themeToggle = document.getElementById('theme-toggle');
     const photoCountDisplay = document.createElement('span'); // For photo count display in category title
-    
+
     categoryTitle.appendChild(photoCountDisplay); // Append photo count to the category title
-    
+
     // Set theme based on localStorage or default to light
     function initTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -37,7 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initTheme();
 
     // Load photos on page load
-    displayPhotosByCategory('all');
+    const savedCategory = localStorage.getItem('selectedCategory') || 'all';
+    displayPhotosByCategory(savedCategory);
 
     // Event listeners
     closeModal.addEventListener('click', () => modal.style.display = 'none');
@@ -61,6 +62,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Get the category from the button's data attribute
             const category = this.dataset.category;
+
+            // Save the selected category to localStorage
+            localStorage.setItem('selectedCategory', category);
 
             // Update the category title
             categoryTitle.textContent = `${this.textContent} `;
