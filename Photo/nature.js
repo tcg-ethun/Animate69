@@ -31,6 +31,30 @@
        src: './Raw/Nature/pic4.png',
         category: 'nature'
     },
+    {
+       src: './Raw/Nature/pic4.png',
+        category: 'nature'
+    },
+    {
+       src: './Raw/Nature/pic4.png',
+        category: 'nature'
+    },
+    {
+       src: './Raw/Nature/pic4.png',
+        category: 'nature'
+    },
+    {
+       src: './Raw/Nature/pic4.png',
+        category: 'nature'
+    },
+    {
+       src: './Raw/Nature/pic4.png',
+        category: 'nature'
+    },
+    {
+       src: './Raw/Nature/pic4.png',
+        category: 'nature'
+    },
    
     
 ];
