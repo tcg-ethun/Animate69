@@ -1,134 +1,92 @@
 // Update image categories array to include 'fruit'
-const imageCategories = ['fruit', 'nature', 'tech', 'flower','food'];
+const imageCategories = ['fruit', 'cartoon' ,'nature', 'creative', 'tech', 'flower','food'];
 
-// Add at the top with other constants
-const defaultDownloadSettings = {
-    format: 'original',
-    quality: 100  // Set default to maximum quality
-};
-
-// Add retryCount to track loading attempts
-const MAX_RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 2000; // 2 seconds
-
-function handleImageError(img, retryCount = 0) {
-    // Store original source
-    const originalSrc = img.dataset.originalSrc || img.src;
-    img.dataset.originalSrc = originalSrc;
-
-    if (retryCount < MAX_RETRY_ATTEMPTS) {
-        // Show loading image
-        img.src = './Photo/loading.png';
-        
-        // Attempt to reload the original image after delay
-        setTimeout(() => {
-            console.log(`Retrying to load image (attempt ${retryCount + 1})`);
-            img.onerror = () => handleImageError(img, retryCount + 1);
-            img.src = originalSrc;
-        }, RETRY_DELAY);
-    } else {
-        // After max retries, keep showing loading image and add error class
-        img.src = './Photo/loading.png';
-        img.classList.add('image-load-error');
-        showNotification('Failed to load image', 'error');
-    }
-}
-
-// Update the imageData structure to include timestamp
 const imageData = [
-    {
-        src: "./Photo/pic7.jpg",
-        category: "nature",
-        timestamp: new Date().toISOString() // Current date as default
-    },
-    { src: "./Photo/pic8.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/pic8.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/pic8.png", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/pic3.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/15.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/16.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/17.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/18.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/19.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/20.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/21.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/22.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/23.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/27.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/28.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/29.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/30.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/31.jpg", category: "nature", timestamp: new Date().toISOString() },
-    { src: "./Photo/32.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/pic7.jpg", category: "nature" },
+    { src: "./Photo/pic8.jpg", category: "nature" },
+    { src: "./Photo/pic8.jpg", category: "nature" },
+    { src: "./Photo/pic8.png", category: "nature" },
+    { src: "./Photo/pic3.jpg", category: "nature" },
+    { src: "./Photo/15.jpg", category: "nature" },
+    { src: "./Photo/16.jpg", category: "nature" },
+    { src: "./Photo/17.jpg", category: "nature" },
+    { src: "./Photo/18.jpg", category: "nature" },
+    { src: "./Photo/19.jpg", category: "nature" },
+    { src: "./Photo/20.jpg", category: "nature" },
+    { src: "./Photo/21.jpg", category: "nature" },
+    { src: "./Photo/22.jpg", category: "nature" },
+    { src: "./Photo/23.jpg", category: "nature" },
+    { src: "./Photo/27.jpg", category: "nature" },
+    { src: "./Photo/28.jpg", category: "nature" },
+    { src: "./Photo/29.jpg", category: "nature" },
+    { src: "./Photo/30.jpg", category: "nature" },
+    { src: "./Photo/31.jpg", category: "nature" },
+    { src: "./Photo/32.jpg", category: "nature" },
 
-    { src: "./Photo/1.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/2.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/3.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/4.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/5.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/6.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/7.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/8.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/9.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/10.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/11.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/12.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/13.jpg", category: "fruit", timestamp: new Date().toISOString() },
-    { src: "./Photo/14.jpg", category: "fruit", timestamp: new Date().toISOString() },
 
-    { src: "./Photo/25.jpg", category: "tech", timestamp: new Date().toISOString() },
-    { src: "./Photo/26.jpg", category: "tech", timestamp: new Date().toISOString() },
-    { src: "./Photo/24.jpg", category: "tech", timestamp: new Date().toISOString() },
+    { src: "./Photo/1.jpg", category: "fruit" },
+    { src: "./Photo/2.jpg", category: "fruit" },
+    { src: "./Photo/3.jpg", category: "fruit" },
+    { src: "./Photo/4.jpg", category: "fruit" },
+    { src: "./Photo/5.jpg", category: "fruit" },
+    { src: "./Photo/6.jpg", category: "fruit" },
+    { src: "./Photo/7.jpg", category: "fruit" },
+    { src: "./Photo/8.jpg", category: "fruit" },
+    { src: "./Photo/9.jpg", category: "fruit" },
+    { src: "./Photo/10.jpg", category: "fruit" },
+    { src: "./Photo/11.jpg", category: "fruit" },
+    { src: "./Photo/12.jpg", category: "fruit" },
+    { src: "./Photo/13.jpg", category: "fruit" },
+    { src: "./Photo/14.jpg", category: "fruit" },
+
+    { src: "./Photo/25.jpg", category: "tech" },
+    { src: "./Photo/26.jpg", category: "tech" },
+    { src: "./Photo/24.jpg", category: "tech" },
  
-    { src: "./Photo/pic5.jpg", category: "flower", timestamp: new Date().toISOString() },
+    { src: "./Photo/pic5.jpg", category: "flower" },
+
+    { src: "./Photo/34.jpg", category: "food" },
+    { src: "./Photo/35.jpg", category: "food" },
+    { src: "./Photo/36.jpg", category: "food" },
+    { src: "./Photo/37.jpg", category: "food" },
+    { src: "./Photo/38.jpg", category: "food" },
+    { src: "./Photo/39.jpg", category: "food" },
+    { src: "./Photo/40.jpg", category: "food" },
+    { src: "./Photo/41.jpg", category: "food" },
+    { src: "./Photo/42.jpg", category: "food" },
+    { src: "./Photo/43.jpg", category: "food" },
+    { src: "./Photo/44.jpg", category: "food" },
+
+
+    { src: "./Photo/46.webp", category: "creative" },
+    { src: "./Photo/47.webp", category: "creative" },
+    { src: "./Photo/48.webp", category: "creative" },
+    { src: "./Photo/49.webp", category: "creative" },
+    { src: "./Photo/50.webp", category: "creative" },
+    { src: "./Photo/51.webp", category: "creative" },
+    { src: "./Photo/52.webp", category: "creative" },
+    { src: "./Photo/53.webp", category: "creative" },
+    { src: "./Photo/54.webp", category: "creative" },
+    { src: "./Photo/55.webp", category: "creative" },
+    { src: "./Photo/56.webp", category: "creative" },
+    { src: "./Photo/57.webp", category: "creative" },
+    { src: "./Photo/58.webp", category: "creative" },
+    { src: "./Photo/59.webp", category: "creative" },
+    { src: "./Photo/60.webp", category: "creative" },
+    { src: "./Photo/61.webp", category: "creative" },
+
+
+
+
+
+
+
 ];
-
-// Add function to fetch and update timestamps from GitHub
-async function updateImageTimestamps() {
-    const owner = 'tcg-ethun';
-    const repo = 'Animate69';
-    const path = './Photo'; // Your images folder path
-
-    try {
-        const response = await fetch(
-            `https://api.github.com/repos/${owner}/${repo}/commits?path=${path}`,
-            {
-                headers: {
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            }
-        );
-
-        if (!response.ok) throw new Error('Failed to fetch commit data');
-
-        const commits = await response.json();
-        
-        // Update timestamps for each image
-        imageData.forEach(image => {
-            const fileName = image.src.split('/').pop();
-            const imageCommit = commits.find(commit => 
-                commit.commit.message.includes(fileName)
-            );
-            
-            if (imageCommit) {
-                image.timestamp = new Date(imageCommit.commit.author.date).toISOString();
-            }
-        });
-
-        // Save updated timestamps to localStorage
-        localStorage.setItem('imageTimestamps', JSON.stringify(
-            imageData.reduce((acc, img) => ({
-                ...acc,
-                [img.src]: img.timestamp
-            }), {}))
-        );
-    } catch (error) {
-        console.error('Error updating timestamps:', error);
-    }
-}
 
 const categoryLabels = {
     all: 'All Photos',
+  cartoon: 'Cartoon',
+  creative: 'Creative',
     flower: 'Flowers',
     nature: 'Nature',
     tech: 'Technology',
@@ -139,62 +97,13 @@ const categoryLabels = {
 // Add category icons mapping
 const categoryIcons = {
     all: 'fa-images',
+  creative: 'creative',
+    cartoon: 'cartoon',
     flower: 'fa-fan',
     nature: 'fa-leaf',
     tech: 'fa-microchip',
     fruit: 'fa-apple-alt',
     food: 'fa-utensils'
-};
-
-// Add image conversion utility
-const imageConverter = {
-    async convertImage(imageUrl, format, quality) {
-        try {
-            // Create temporary image
-            const img = new Image();
-            const imageLoadPromise = new Promise((resolve, reject) => {
-                img.onload = () => resolve(img);
-                img.onerror = () => reject(new Error('Failed to load image'));
-            });
-            img.src = imageUrl;
-            await imageLoadPromise;
-
-            // Create canvas
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-
-            // Convert to desired format
-            let mimeType;
-            switch(format) {
-                case 'jpg':
-                case 'jpeg':
-                    mimeType = 'image/jpeg';
-                    break;
-                case 'png':
-                    mimeType = 'image/png';
-                    break;
-                case 'webp':
-                    mimeType = 'image/webp';
-                    break;
-                case 'tiff':
-                    mimeType = 'image/tiff';
-                    break;
-                default:
-                    mimeType = 'image/jpeg';
-            }
-
-            // Convert to blob
-            return new Promise(resolve => {
-                canvas.toBlob(blob => resolve(blob), mimeType, quality / 100);
-            });
-        } catch (error) {
-            console.error('Image conversion failed:', error);
-            throw error;
-        }
-    }
 };
 
 // Add this function after imageData declaration
@@ -245,7 +154,7 @@ let filteredImages = [...imageData];
 
 // Add zoom functionality
 let currentZoom = 1;
-const zoomLevels = [1, 1.5, 2, 2.5, 3,3.5,4,9];
+const zoomLevels = [1, 1.5, 2, 2.5, 3];
 let currentZoomIndex = 0;
 
 // Add at the top with your other constants
@@ -320,53 +229,25 @@ function renderGallery(images, append = false) {
     itemsToRender.forEach((image, index) => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item fade-in';
-        galleryItem.setAttribute('role', 'listitem');
         galleryItem.dataset.category = image.category;
         
         const img = new Image();
         img.src = image.src;
-        img.loading = "lazy";
-        img.alt = `${categoryLabels[image.category]} photograph - ${image.src.split('/').pop().split('.')[0]}`;
-        img.onerror = () => handleImageError(img);
         
-        // Add loading state
-        img.onloadstart = () => {
-            img.src = './Photo/loading.png';
-        };
-        
-        // Handle successful load
         img.onload = () => {
-            if (img.src.includes('loading.png')) {
-                return; // Skip if it's the loading image
-            }
-            
-            // Add structured data
-            const jsonLD = {
-                "@context": "https://schema.org",
-                "@type": "ImageObject",
-                "contentUrl": image.src,
-                "description": img.alt,
-                "datePublished": image.timestamp,
-                "category": categoryLabels[image.category]
-            };
-            
             galleryItem.innerHTML = `
                 <div class="image-container">
-                    ${img.outerHTML}
-                    <script type="application/ld+json">
-                        ${JSON.stringify(jsonLD)}
-                    </script>
+                    <img src="${image.src}" 
+                        alt="${image.category}"
+                        loading="lazy"
+                    >
                 </div>
-                <div class="gallery-actions" role="group" aria-label="Image actions">
-                    <button class="action-btn download-btn" 
-                            data-src="${image.src}"
-                            aria-label="Download image">
-                        <i class="fas fa-download" aria-hidden="true"></i>
+                <div class="gallery-actions">
+                    <button class="action-btn download-btn" data-src="${image.src}">
+                        <i class="fas fa-download"></i>
                     </button>
-                    <button class="action-btn share-btn" 
-                            data-src="${image.src}"
-                            aria-label="Share image">
-                        <i class="fas fa-share-alt" aria-hidden="true"></i>
+                    <button class="action-btn share-btn" data-src="${image.src}">
+                        <i class="fas fa-share-alt"></i>
                     </button>
                 </div>
             `;
@@ -376,6 +257,10 @@ function renderGallery(images, append = false) {
                     openModal(images, index);
                 }
             });
+        };
+        
+        img.onerror = () => {
+            handleImageError(img);
         };
         
         galleryContainer.appendChild(galleryItem);
@@ -489,7 +374,7 @@ function updateModal(imageData) {
     closeBtn.addEventListener('click', closeModal);
     zoomIn.addEventListener('click', handleZoomIn);
     zoomOut.addEventListener('click', handleZoomOut);
-    downloadBtn.addEventListener('click', () => handleDownload(imageData.src, downloadBtn));
+    downloadBtn.addEventListener('click', () => handleDownload(imageData.src));
     shareBtn.addEventListener('click', () => handleShare(imageData.src));
 }
 
@@ -748,14 +633,13 @@ function initCategoryPopup() {
     });
 }
 
-// Update initSettings function to properly handle format settings
+// Add settings functionality
 function initSettings() {
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPopup = document.getElementById('settingsPopup');
+    const closeSettings = document.querySelector('.close-settings');
     const darkModeToggle = document.getElementById('darkModeToggle');
     const viewButtons = document.querySelectorAll('.view-option-btn');
-    
-    // Load saved preferences
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    const currentView = localStorage.getItem('galleryView') || 'grid';
     
     // Initialize dark mode
     darkModeToggle.checked = isDarkMode;
@@ -767,19 +651,42 @@ function initSettings() {
     });
     
     // Event listeners
-    darkModeToggle.addEventListener('change', (e) => {
-        document.body.classList.toggle('dark-mode', e.target.checked);
-        localStorage.setItem('darkMode', e.target.checked);
+    settingsBtn.addEventListener('click', () => {
+        settingsPopup.classList.add('active');
     });
     
+    closeSettings.addEventListener('click', () => {
+        settingsPopup.classList.remove('active');
+    });
+    
+    // Dark mode toggle
+    darkModeToggle.addEventListener('change', (e) => {
+        isDarkMode = e.target.checked;
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        localStorage.setItem('darkMode', isDarkMode);
+    });
+    
+    // View options
     viewButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.dataset.view;
+            currentView = view;
             localStorage.setItem('galleryView', view);
+            
+            // Update active states
             viewButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
+            // Update gallery view
             updateGalleryView(view);
         });
+    });
+    
+    // Close on outside click
+    settingsPopup.addEventListener('click', (e) => {
+        if (e.target === settingsPopup) {
+            settingsPopup.classList.remove('active');
+        }
     });
 }
 
@@ -882,36 +789,14 @@ const setupLazyLoading = () => {
     }
 };
 
-// Update handleDownload function to use simple download
-async function handleDownload(imageSrc, button) {
-    try {
-        if (button) button.classList.add('loading');
-        
-        const response = await fetch(imageSrc);
-        const blob = await response.blob();
-        
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        const extension = imageSrc.split('.').pop();
-        
-        link.href = url;
-        link.download = `image_${Date.now()}.${extension}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        if (button) {
-            button.classList.remove('loading');
-            button.classList.add('success');
-            setTimeout(() => button.classList.remove('success'), 2000);
-            showNotification('Image downloaded successfully!', 'success');
-        }
-    } catch (error) {
-        console.error('Download failed:', error);
-        if (button) button.classList.remove('loading');
-        showNotification('Download failed. Please try again.', 'error');
-    }
+// Download handler function
+function handleDownload(imageSrc) {
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = imageSrc.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Update share handler
@@ -968,11 +853,17 @@ galleryContainer.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent modal from opening when clicking buttons
 
     if (target.classList.contains('download-btn')) {
-        handleDownload(target.dataset.src, target);
+        handleDownload(target.dataset.src);
     } else if (target.classList.contains('share-btn')) {
         handleShare(target.dataset.src);
     }
 });
+
+// Error handling for images
+function handleImageError(img) {
+    img.onerror = null;
+    img.src = './Photo/loading.png';
+}
 
 // Add slideshow functionality
 function initSlideshow() {
