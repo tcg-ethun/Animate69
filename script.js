@@ -71,6 +71,9 @@ const filterBtns = document.querySelectorAll('.filter-btn');
 const header = document.getElementById('header');
 const loadingIndicator = document.getElementById('loading');
 
+// Add these variables at the top
+let currentView = localStorage.getItem('galleryView') || 'grid';
+
 // Current image index for modal
 let currentIndex = 0;
 let filteredImages = [...imageData];
@@ -109,66 +112,31 @@ async function initGallery() {
 function renderGallery(images) {
     galleryContainer.innerHTML = '';
     
-    if (images.length === 0) {
-        galleryContainer.innerHTML = '<p class="no-images">No images found for this filter.</p>';
-        return;
-    }
-    
     images.forEach((image, index) => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item fade-in';
         galleryItem.dataset.category = image.category;
-        galleryItem.style.animationDelay = `${index * 50}ms`;
         
         galleryItem.innerHTML = `
-            <img src="${image.src}" alt="${image.title}">
-            <div class="overlay">
-                <h3 class="title">${image.title}</h3>
-                <p class="description">${image.description}</p>
-                <div class="gallery-actions">
-                    <button class="action-btn download-btn" data-src="${image.src}">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                    <button class="action-btn share-btn" data-title="${image.title}" data-src="${image.src}">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
+            <div class="image-container">
+                <img src="${image.src}" alt="${image.title}">
+                <div class="overlay">
+                    <h3 class="title">${image.title}</h3>
+                    <p class="description">${image.description}</p>
                 </div>
+            </div>
+            <div class="gallery-actions">
+                <button class="action-btn download-btn" data-src="${image.src}">
+                    <i class="fas fa-download"></i>
+                    <span>Download</span>
+                </button>
+                <button class="action-btn share-btn" data-src="${image.src}" data-title="${image.title}">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share</span>
+                </button>
             </div>
         `;
         
-        // Create image element
-        const img = new Image();
-        img.src = image.src;
-        img.alt = image.title;
-        
-        // Set the HTML content immediately instead of waiting for onload
-        galleryItem.innerHTML = `
-            <img src="${image.src}" alt="${image.title}">
-            <div class="overlay">
-                <h3 class="title">${image.title}</h3>
-                <p class="description">${image.description}</p>
-                <div class="gallery-actions">
-                    <button class="action-btn download-btn" data-src="${image.src}">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                    <button class="action-btn share-btn" data-title="${image.title}" data-src="${image.src}">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        // Add error handler
-        img.onerror = () => {
-            console.error(`Failed to load image: ${image.src}`);
-            galleryItem.innerHTML = `
-                <div class="error-placeholder">
-                    <p>Image failed to load</p>
-                </div>
-            `;
-        };
-        
-        galleryItem.addEventListener('click', () => openModal(images, index));
         galleryContainer.appendChild(galleryItem);
     });
 }
@@ -230,6 +198,41 @@ function handleScroll() {
     }
 }
 
+// Add view switching functionality
+function initViewSwitcher() {
+    const galleryContainer = document.getElementById('gallery-container');
+    const viewButtons = document.querySelectorAll('.view-btn');
+    
+    // Set initial view
+    galleryContainer.className = `gallery-container ${currentView}-view`;
+    viewButtons.forEach(btn => {
+        if(btn.dataset.view === currentView) {
+            btn.classList.add('active');
+        }
+    });
+
+    // View switch handler
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const view = btn.dataset.view;
+            
+            // Update buttons
+            viewButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update container class
+            galleryContainer.className = `gallery-container ${view}-view`;
+            
+            // Save to localStorage
+            localStorage.setItem('galleryView', view);
+            currentView = view;
+            
+            // Re-render gallery with new view
+            renderGallery(filteredImages);
+        });
+    });
+}
+
 // Event listeners
 modalClose.addEventListener('click', closeModal);
 prevBtn.addEventListener('click', prevImage);
@@ -267,7 +270,10 @@ modal.addEventListener('click', (e) => {
 window.addEventListener('scroll', handleScroll);
 
 // Initialize gallery when DOM is loaded
-document.addEventListener('DOMContentLoaded', initGallery);
+document.addEventListener('DOMContentLoaded', () => {
+    initViewSwitcher();
+    initGallery();
+});
 
 // Lazy loading implementation
 const lazyLoad = (entries, observer) => {
@@ -304,7 +310,7 @@ const setupLazyLoading = () => {
     }
 };
 
-// Add these functions after your existing code
+// Download handler function
 function handleDownload(imageSrc) {
     const link = document.createElement('a');
     link.href = imageSrc;
@@ -314,19 +320,23 @@ function handleDownload(imageSrc) {
     document.body.removeChild(link);
 }
 
-function handleShare(title, imageSrc) {
+// Share handler function
+async function handleShare(title, url) {
     if (navigator.share) {
-        navigator.share({
-            title: title,
-            text: 'Check out this image from Swift Gallery',
-            url: window.location.origin + '/' + imageSrc
-        }).catch(console.error);
+        try {
+            await navigator.share({
+                title: title,
+                text: 'Check out this image from Swift Gallery',
+                url: window.location.origin + '/' + url
+            });
+        } catch (err) {
+            console.log('Share failed:', err);
+        }
     } else {
         // Fallback for browsers that don't support Web Share API
         const dummy = document.createElement('input');
-        const url = window.location.origin + '/' + imageSrc;
         document.body.appendChild(dummy);
-        dummy.value = url;
+        dummy.value = window.location.origin + '/' + url;
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
@@ -334,14 +344,40 @@ function handleShare(title, imageSrc) {
     }
 }
 
-// Add event delegation for the buttons
+// Add notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Update event listeners
 galleryContainer.addEventListener('click', (e) => {
-    if (e.target.classList.contains('download-btn')) {
-        e.stopPropagation(); // Prevent modal from opening
-        handleDownload(e.target.dataset.src);
-    } else if (e.target.classList.contains('share-btn')) {
-        e.stopPropagation(); // Prevent modal from opening
-        handleShare(e.target.dataset.title, e.target.dataset.src);
+    const target = e.target.closest('.action-btn');
+    if (!target) return;
+
+    e.stopPropagation(); // Prevent modal from opening when clicking buttons
+
+    if (target.classList.contains('download-btn')) {
+        handleDownload(target.dataset.src);
+    } else if (target.classList.contains('share-btn')) {
+        handleShare(target.dataset.title, target.dataset.src);
     }
 });
 
