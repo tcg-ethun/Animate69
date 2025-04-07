@@ -75,15 +75,34 @@ const loadingIndicator = document.getElementById('loading');
 let currentIndex = 0;
 let filteredImages = [...imageData];
 
+// Update the loading indicator HTML
+function updateLoadingIndicator() {
+    const loadingIndicator = document.getElementById('loading');
+    loadingIndicator.innerHTML = `
+        <div class="loader"></div>
+        <div class="loading-text">Loading</div>
+    `;
+}
+
 // Initialize the gallery with images
-function initGallery() {
+async function initGallery() {
+    updateLoadingIndicator();
     loadingIndicator.style.display = 'flex';
     
-    // Reduce timeout to make loading faster
-    setTimeout(() => {
-        renderGallery(imageData);
-        loadingIndicator.style.display = 'none';
-    }, 300); // Reduced from 600 to 300ms
+    try {
+        // Add a minimum loading time to prevent flickering
+        await Promise.all([
+            new Promise(resolve => setTimeout(resolve, 800)),
+            renderGallery(imageData)
+        ]);
+    } finally {
+        // Add fade out animation
+        loadingIndicator.style.opacity = '0';
+        setTimeout(() => {
+            loadingIndicator.style.display = 'none';
+            loadingIndicator.style.opacity = '1';
+        }, 300);
+    }
 }
 
 // Render gallery items
