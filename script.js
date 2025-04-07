@@ -78,6 +78,11 @@ let currentView = localStorage.getItem('galleryView') || 'grid';
 let currentIndex = 0;
 let filteredImages = [...imageData];
 
+// Add zoom functionality
+let currentZoom = 1;
+const zoomLevels = [1, 1.5, 2, 2.5, 3];
+let currentZoomIndex = 0;
+
 // Update the loading indicator HTML
 function updateLoadingIndicator() {
     const loadingIndicator = document.getElementById('loading');
@@ -117,25 +122,45 @@ function renderGallery(images) {
         galleryItem.className = 'gallery-item fade-in';
         galleryItem.dataset.category = image.category;
         
-        galleryItem.innerHTML = `
-            <div class="image-container">
-                <img src="${image.src}" alt="${image.title}">
-                <div class="overlay">
-                    <h3 class="title">${image.title}</h3>
-                    <p class="description">${image.description}</p>
+        const img = new Image();
+        img.src = image.src;
+        
+        img.onload = () => {
+            galleryItem.innerHTML = `
+                <div class="image-container">
+                    <img src="${image.src}" 
+                        alt="${image.title}"
+                        loading="lazy"
+                    >
+                    <div class="overlay">
+                        <h3 class="title">${image.title}</h3>
+                        <p class="description">${image.description}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="gallery-actions">
-                <button class="action-btn download-btn" data-src="${image.src}">
-                    <i class="fas fa-download"></i>
-                    <span>Download</span>
-                </button>
-                <button class="action-btn share-btn" data-src="${image.src}" data-title="${image.title}">
-                    <i class="fas fa-share-alt"></i>
-                    <span>Share</span>
-                </button>
-            </div>
-        `;
+                <div class="gallery-actions">
+                    <button class="action-btn download-btn" data-src="${image.src}">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="action-btn share-btn" data-src="${image.src}" data-title="${image.title}">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+            `;
+            
+            galleryItem.addEventListener('click', (e) => {
+                if (!e.target.closest('.action-btn')) {
+                    openModal(images, index);
+                }
+            });
+        };
+        
+        img.onerror = () => {
+            galleryItem.innerHTML = `
+                <div class="error-placeholder">
+                    <p>Image failed to load</p>
+                </div>
+            `;
+        };
         
         galleryContainer.appendChild(galleryItem);
     });
@@ -145,9 +170,10 @@ function renderGallery(images) {
 function openModal(images, index) {
     currentIndex = index;
     filteredImages = images;
-    
-    updateModalContent();
     modal.classList.add('active');
+    currentZoom = 1;
+    currentZoomIndex = 0;
+    updateModal(images[index]);
     document.body.style.overflow = 'hidden';
 }
 
@@ -155,26 +181,58 @@ function openModal(images, index) {
 function closeModal() {
     modal.classList.remove('active');
     document.body.style.overflow = '';
+    currentZoom = 1;
+    currentZoomIndex = 0;
 }
 
 // Update modal content based on current index
-function updateModalContent() {
-    const image = filteredImages[currentIndex];
-    modalImage.src = image.src;
-    modalTitle.textContent = image.title;
-    modalDescription.textContent = image.description;
+function updateModal(imageData) {
+    const modalContent = document.querySelector('.modal-content');
+    modalContent.innerHTML = `
+        <button class="modal-close" aria-label="Close modal">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="modal-image-container">
+            <img src="${imageData.src}" 
+                alt="${imageData.title}" 
+                class="modal-image"
+                style="transform: scale(${currentZoom})"
+            >
+            <div class="zoom-controls">
+                <button class="zoom-btn zoom-out" aria-label="Zoom out">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="zoom-btn zoom-in" aria-label="Zoom in">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-caption">
+            <h3 class="modal-title">${imageData.title}</h3>
+            <p class="modal-description">${imageData.description}</p>
+        </div>
+    `;
+
+    // Add event listeners
+    const closeBtn = modalContent.querySelector('.modal-close');
+    const zoomIn = modalContent.querySelector('.zoom-in');
+    const zoomOut = modalContent.querySelector('.zoom-out');
+    
+    closeBtn.addEventListener('click', closeModal);
+    zoomIn.addEventListener('click', handleZoomIn);
+    zoomOut.addEventListener('click', handleZoomOut);
 }
 
 // Navigate to previous image
 function prevImage() {
     currentIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
-    updateModalContent();
+    updateModal(filteredImages[currentIndex]);
 }
 
 // Navigate to next image
 function nextImage() {
     currentIndex = (currentIndex + 1) % filteredImages.length;
-    updateModalContent();
+    updateModal(filteredImages[currentIndex]);
 }
 
 // Filter gallery items
@@ -231,6 +289,28 @@ function initViewSwitcher() {
             renderGallery(filteredImages);
         });
     });
+}
+
+// Zoom functionality
+function handleZoomIn() {
+    if (currentZoomIndex < zoomLevels.length - 1) {
+        currentZoomIndex++;
+        currentZoom = zoomLevels[currentZoomIndex];
+        updateZoom();
+    }
+}
+
+function handleZoomOut() {
+    if (currentZoomIndex > 0) {
+        currentZoomIndex--;
+        currentZoom = zoomLevels[currentZoomIndex];
+        updateZoom();
+    }
+}
+
+function updateZoom() {
+    const modalImage = document.querySelector('.modal-image');
+    modalImage.style.transform = `scale(${currentZoom})`;
 }
 
 // Event listeners

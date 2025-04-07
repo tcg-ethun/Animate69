@@ -89,22 +89,23 @@ main {
 }
 
 .gallery-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Force 2 columns */
-    gap: 8px;
-    padding: 8px;
+    columns: 2;
+    column-gap: 15px;
+    padding: 15px;
     width: 100%;
-    margin: 0 auto;
 }
 
 .gallery-item {
+    break-inside: avoid;
+    margin-bottom: 15px;
     position: relative;
-    border-radius: 6px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     cursor: pointer;
     background-color: #e9ecef;
-    padding-bottom: 40px; /* Make space for buttons */
+    display: inline-block;
+    width: 100%;
 }
 
 .gallery-item:hover {
@@ -112,12 +113,18 @@ main {
     box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
 }
 
+.image-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
 .gallery-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
     transition: transform 0.5s ease;
+    object-fit: cover;
 }
 
 .gallery-item:hover img {
@@ -189,10 +196,15 @@ main {
     visibility: visible;
 }
 
+/* Ensure modal content has proper positioning */
 .modal-content {
     position: relative;
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 95vw;
+    max-height: 95vh;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     transform: scale(0.8);
     transition: transform 0.3s ease;
 }
@@ -201,28 +213,57 @@ main {
     transform: scale(1);
 }
 
-.modal-image {
-    display: block;
-    max-width: 100%;
-    max-height: 80vh;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    border-radius: 4px;
+.modal-image-container {
+    position: relative;
+    width: 100%;
+    height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
+.modal-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Modal close button styles */
 .modal-close {
     position: absolute;
-    top: -40px;
-    right: 0;
-    background: none;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
     color: white;
-    font-size: 2rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 2001;
 }
 
 .modal-close:hover {
+    background: rgba(255, 255, 255, 0.4);
     transform: rotate(90deg);
+}
+
+/* Make sure the close button is visible on mobile */
+@media screen and (max-width: 768px) {
+    .modal-close {
+        top: 10px;
+        right: 10px;
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
 }
 
 .modal-caption {
@@ -273,6 +314,35 @@ main {
 
 .modal-control:hover {
     background: rgba(255,255,255,0.4);
+}
+
+/* Add zoom controls */
+.zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 2001;
+}
+
+.zoom-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.zoom-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 /* Loading indicator */
@@ -458,7 +528,13 @@ footer {
     }
     
     .gallery-container {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        columns: 2;
+        column-gap: 10px;
+        padding: 10px;
+    }
+    
+    .gallery-item {
+        margin-bottom: 10px;
     }
     
     .modal-controls {
@@ -479,14 +555,13 @@ footer {
     }
 
     .gallery-container {
-        grid-template-columns: repeat(2, calc(50% - 4px)); /* Exact 50% minus gap */
-        gap: 8px;
-        padding: 8px;
+        columns: 2;
+        column-gap: 10px;
+        padding: 10px;
     }
 
     .gallery-item {
-        width: 100%;
-        margin: 0;
+        margin-bottom: 10px;
     }
 
     /* Adjust header for mobile */
@@ -499,9 +574,25 @@ footer {
 /* Tablet and larger screens */
 @media screen and (min-width: 481px) {
     .gallery-container {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
+        columns: 3;
+        column-gap: 20px;
         padding: 20px;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .gallery-container {
+        columns: 3;
+        column-gap: 20px;
+        padding: 20px;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .gallery-container {
+        columns: 4;
+        column-gap: 24px;
+        padding: 24px;
     }
 }
 
@@ -591,8 +682,8 @@ footer {
 /* Tablet and desktop view */
 @media screen and (min-width: 768px) {
     .gallery-container {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
+        columns: 3;
+        column-gap: 20px;
         padding: 20px;
     }
 }
@@ -636,19 +727,28 @@ footer {
 
 /* List view styles */
 .gallery-container.list-view {
-    grid-template-columns: 1fr;
-    gap: 15px;
+    columns: 1;
+    column-gap: 0;
 }
 
 .list-view .gallery-item {
     display: flex;
     flex-direction: row;
-    height: 200px;
+    min-height: 200px;
+    height: auto;
+    margin-bottom: 15px;
 }
 
 .list-view .gallery-item .image-container {
     width: 300px;
     flex-shrink: 0;
+    height: 100%;
+}
+
+.list-view .gallery-item img {
+    height: 100%;
+    object-fit: contain;
+    background-color: #f8f9fa;
 }
 
 .list-view .gallery-item .content-wrapper {
