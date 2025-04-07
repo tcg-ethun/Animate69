@@ -210,6 +210,13 @@ function updateModal(imageData) {
         <div class="modal-caption">
             <h3 class="modal-title">${imageData.title}</h3>
             <p class="modal-description">${imageData.description}</p>
+        <div class="gallery-actions">
+            <button class="action-btn download-btn" data-src="${imageData.src}">
+                <i class="fas fa-download"></i> Download
+            </button>
+            <button class="action-btn share-btn" data-src="${imageData.src}" data-title="${imageData.title}">
+                <i class="fas fa-share-alt"></i> Share
+            </button>
         </div>
     `;
 
@@ -217,10 +224,14 @@ function updateModal(imageData) {
     const closeBtn = modalContent.querySelector('.modal-close');
     const zoomIn = modalContent.querySelector('.zoom-in');
     const zoomOut = modalContent.querySelector('.zoom-out');
+    const downloadBtn = modalContent.querySelector('.download-btn');
+    const shareBtn = modalContent.querySelector('.share-btn');
     
     closeBtn.addEventListener('click', closeModal);
     zoomIn.addEventListener('click', handleZoomIn);
     zoomOut.addEventListener('click', handleZoomOut);
+    downloadBtn.addEventListener('click', () => handleDownload(imageData.src, imageData.title));
+    shareBtn.addEventListener('click', () => handleShare(imageData.title, imageData.src, imageData.description));
 }
 
 // Navigate to previous image

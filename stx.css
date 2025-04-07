@@ -207,6 +207,7 @@ main {
     align-items: center;
     transform: scale(0.8);
     transition: transform 0.3s ease;
+    padding-bottom: 70px; /* Make space for buttons */
 }
 
 .modal.active .modal-content {
@@ -617,74 +618,60 @@ footer {
 
 /* Add these styles to your existing CSS */
 .gallery-actions {
+    display: none; /* Hide by default */
+}
+
+/* Show actions in modal */
+.modal-content .gallery-actions {
     display: flex;
-    justify-content: space-between;
-    padding: 8px;
-    background: white;
-    border-top: 1px solid #eee;
+    justify-content: center;
+    padding: 15px;
+    background: transparent;
     position: absolute;
-    bottom: 0;
+    bottom: 20px;
     left: 0;
     right: 0;
-    z-index: 10;
+    z-index: 2001;
+    gap: 15px;
 }
 
-.action-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex: 1;
-    justify-content: center;
-    margin: 0 4px;
-}
-
-.download-btn {
-    background: #3a1c71;
+/* Style modal action buttons */
+.modal-content .action-btn {
+    background: rgba(255, 255, 255, 0.2);
     color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+    flex: 0 1 auto;
+    min-width: 120px;
 }
 
-.download-btn:hover {
-    background: #2d1657;
+.modal-content .download-btn {
+    background: rgba(58, 28, 113, 0.8);
 }
 
-.share-btn {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    color: #212529;
+.modal-content .download-btn:hover {
+    background: rgba(58, 28, 113, 1);
 }
 
-.share-btn:hover {
-    background: #e9ecef;
+.modal-content .share-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
-/* Responsive adjustments */
+/* Responsive styles for modal buttons */
 @media screen and (max-width: 480px) {
-    .gallery-actions {
-        padding: 6px;
+    .modal-content .gallery-actions {
+        padding: 10px;
+        bottom: 10px;
+        gap: 10px;
     }
 
-    .action-btn {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-    }
-
-    .action-btn i {
+    .modal-content .action-btn {
+        padding: 6px 12px;
         font-size: 0.8rem;
-    }
-}
-
-/* Tablet and desktop view */
-@media screen and (min-width: 768px) {
-    .gallery-container {
-        columns: 3;
-        column-gap: 20px;
-        padding: 20px;
+        min-width: 100px;
     }
 }
 
@@ -729,52 +716,156 @@ footer {
 .gallery-container.list-view {
     columns: 1;
     column-gap: 0;
+    padding: 20px;
 }
 
 .list-view .gallery-item {
     display: flex;
     flex-direction: row;
-    min-height: 200px;
+    min-height: 250px;
     height: auto;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.list-view .gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
 }
 
 .list-view .gallery-item .image-container {
-    width: 300px;
+    width: 350px;
     flex-shrink: 0;
-    height: 100%;
+    border-radius: 12px 0 0 12px;
+    overflow: hidden;
 }
 
 .list-view .gallery-item img {
+    width: 100%;
     height: 100%;
-    object-fit: contain;
-    background-color: #f8f9fa;
+    object-fit: cover;
+    transition: transform 0.5s ease;
 }
 
-.list-view .gallery-item .content-wrapper {
+.list-view .gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+.list-view .content-wrapper {
     flex: 1;
-    padding: 15px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-.list-view .gallery-actions {
-    margin-top: auto;
-    padding: 15px;
-    border-top: none;
+.list-view .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d1657;
+    margin-bottom: 10px;
 }
 
+.list-view .description {
+    font-size: 1rem;
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.list-view .gallery-actions {
+    position: relative;
+    background: transparent;
+    border-top: 1px solid #eee;
+    padding: 15px 0 0;
+    margin-top: auto;
+}
+
+.list-view .action-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    margin: 0 8px 0 0;
+    flex: 0 auto;
+}
+
+/* Responsive adjustments for list view */
 @media screen and (max-width: 768px) {
     .list-view .gallery-item {
         flex-direction: column;
-        height: auto;
+        min-height: auto;
     }
 
     .list-view .gallery-item .image-container {
         width: 100%;
-        height: 200px;
+        height: 250px;
+        border-radius: 12px 12px 0 0;
     }
+
+    .list-view .content-wrapper {
+        padding: 15px;
+    }
+
+    .list-view .title {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+
+    .list-view .description {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .list-view .gallery-actions {
+        padding: 12px 0 0;
+    }
+
+    .list-view .action-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Add animations for list view */
+.list-view .gallery-item {
+    animation: slideIn 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Add hover effects for buttons in list view */
+.list-view .action-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.list-view .action-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.list-view .action-btn:hover::after {
+    transform: translateX(0);
 }
 
 /* Add notification styles */
@@ -826,16 +917,7 @@ footer {
 
 /* Gallery action buttons styles */
 .gallery-actions {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px;
-    background: white;
-    border-top: 1px solid #eee;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
+    display: none; /* Hide by default */
 }
 
 .action-btn {
