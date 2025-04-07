@@ -2,19 +2,29 @@
 const imageCategories = ['fruit', 'nature', 'tech', 'flower','food'];
 
 const imageData = [
-    { src: "./Photo/pic5.jpg", category: "flower" },
-    { src: "./Photo/pic6.jpg", category: "flower" },
-    { src: "./Photo/pic6.jpg", category: "flower" },
-    { src: "./Photo/pic6.jpg", category: "flower" },
     { src: "./Photo/pic7.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature" },
     { src: "./Photo/pic7.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature" },
     { src: "./Photo/pic8.png", category: "nature" },
     { src: "./Photo/pic3.jpg", category: "nature" },
-    { src: "./Photo/24.jpg", category: "tech" },
-    { src: "./Photo/25.jpg", category: "tech" },
-    { src: "./Photo/26.jpg", category: "tech" },
+    { src: "./Photo/15.jpg", category: "nature" },
+    { src: "./Photo/16.jpg", category: "nature" },
+    { src: "./Photo/17.jpg", category: "nature" },
+    { src: "./Photo/18.jpg", category: "nature" },
+    { src: "./Photo/19.jpg", category: "nature" },
+    { src: "./Photo/20.jpg", category: "nature" },
+    { src: "./Photo/21.jpg", category: "nature" },
+    { src: "./Photo/22.jpg", category: "nature" },
+    { src: "./Photo/23.jpg", category: "nature" },
+    { src: "./Photo/27.jpg", category: "nature" },
+    { src: "./Photo/28.jpg", category: "nature" },
+    { src: "./Photo/29.jpg", category: "nature" },
+    { src: "./Photo/30.jpg", category: "nature" },
+    { src: "./Photo/31.jpg", category: "nature" },
+    { src: "./Photo/32.jpg", category: "nature" },
+
+
     { src: "./Photo/1.jpg", category: "fruit" },
     { src: "./Photo/2.jpg", category: "fruit" },
     { src: "./Photo/3.jpg", category: "fruit" },
@@ -29,15 +39,18 @@ const imageData = [
     { src: "./Photo/12.jpg", category: "fruit" },
     { src: "./Photo/13.jpg", category: "fruit" },
     { src: "./Photo/14.jpg", category: "fruit" },
-    { src: "./Photo/15.jpg", category: "nature" },
-    { src: "./Photo/16.jpg", category: "nature" },
-    { src: "./Photo/17.jpg", category: "nature" },
-    { src: "./Photo/18.jpg", category: "nature" },
-    { src: "./Photo/19.jpg", category: "nature" },
-    { src: "./Photo/20.jpg", category: "nature" },
-    { src: "./Photo/21.jpg", category: "nature" },
-    { src: "./Photo/22.jpg", category: "nature" },
-    { src: "./Photo/23.jpg", category: "nature" },
+
+    { src: "./Photo/25.jpg", category: "tech" },
+    { src: "./Photo/26.jpg", category: "tech" },
+ 
+    { src: "./Photo/pic5.jpg", category: "flower" },
+    { src: "./Photo/pic6.jpg", category: "flower" },
+    { src: "./Photo/pic6.jpg", category: "flower" },
+    { src: "./Photo/pic6.jpg", category: "flower" },
+
+
+
+
 
 ];
 
@@ -48,6 +61,16 @@ const categoryLabels = {
     tech: 'Technology',
     fruit: 'Fruits',
     food: 'Foods',
+};
+
+// Add category icons mapping
+const categoryIcons = {
+    all: 'fa-images',
+    flower: 'fa-fan',
+    nature: 'fa-leaf',
+    tech: 'fa-microchip',
+    fruit: 'fa-apple-alt',
+    food: 'fa-utensils'
 };
 
 // Add this function after imageData declaration
@@ -105,9 +128,12 @@ let currentZoomIndex = 0;
 const RECENT_DAYS = 7; // Show images added within last 7 days
 
 // Add these variables at the top with other constants
-const ITEMS_PER_PAGE = 20;
-const LOAD_MORE_COUNT = 10;
+const ITEMS_PER_PAGE = 25;
+const LOAD_MORE_COUNT = 25;
 let currentLoadedItems = ITEMS_PER_PAGE;
+
+// Add global variables
+let isDarkMode = localStorage.getItem('darkMode') === 'true';
 
 // Update the loading indicator HTML
 function updateLoadingIndicator() {
@@ -477,32 +503,147 @@ async function updateImageData() {
     renderGallery(imageData);
 }
 
-// Update your filter buttons HTML generation
+// Update renderFilterButtons function
 function renderFilterButtons() {
-    const filterContainer = document.querySelector('.filter-buttons');
-    const categoryCounts = getCategoryCounts();
+    const filterContainer = document.querySelector('.filter-section');
+    const counts = getCategoryCounts();
     
     filterContainer.innerHTML = `
-        <button class="filter-btn active" data-filter="all">
-            ${categoryLabels.all} <span class="category-count">(${categoryCounts.all})</span>
+        <button class="all-photos-btn active" data-filter="all">
+            ${categoryLabels.all} <span class="category-count">(${counts.all})</span>
         </button>
-        ${imageCategories.map(category => `
-            <button class="filter-btn" data-filter="${category}">
-                ${categoryLabels[category]}
-                <span class="category-count">(${categoryCounts[category]})</span>
-            </button>
-        `).join('')}
+        <button class="show-all-categories">
+            <i class="fas fa-th-large"></i>
+            View All Categories
+        </button>
     `;
     
-    // Re-attach event listeners
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    filterBtns.forEach(btn => {
+    // Add event listeners
+    const allPhotosBtn = filterContainer.querySelector('.all-photos-btn');
+    allPhotosBtn.addEventListener('click', () => {
+        filterGallery('all');
+    });
+    
+    initCategoryPopup();
+}
+
+// Add popup functionality
+function initCategoryPopup() {
+    const showAllBtn = document.querySelector('.show-all-categories');
+    const popup = document.getElementById('categoryPopup');
+    const closeBtn = popup.querySelector('.close-popup');
+    const categoriesGrid = popup.querySelector('.categories-grid');
+    
+    // Populate categories
+    function populateCategories() {
+        const counts = getCategoryCounts();
+        categoriesGrid.innerHTML = `
+            <div class="category-card" data-category="all">
+                <h4>${categoryLabels.all}</h4>
+                <span class="category-count-badge">${counts.all}</span>
+            </div>
+            ${imageCategories.map(category => `
+                <div class="category-card" data-category="${category}">
+                    <h4>${categoryLabels[category]}</h4>
+                    <span class="category-count-badge">${counts[category]}</span>
+                </div>
+            `).join('')}
+        `;
+        
+        // Add click handlers
+        categoriesGrid.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const category = card.dataset.category;
+                filterGallery(category);
+                closePopup();
+                
+                // Update active state of filter buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.filter === category);
+                });
+            });
+        });
+    }
+    
+    function openPopup() {
+        popup.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        populateCategories();
+    }
+    
+    function closePopup() {
+        popup.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    showAllBtn.addEventListener('click', openPopup);
+    closeBtn.addEventListener('click', closePopup);
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) closePopup();
+    });
+}
+
+// Add settings functionality
+function initSettings() {
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPopup = document.getElementById('settingsPopup');
+    const closeSettings = document.querySelector('.close-settings');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const viewButtons = document.querySelectorAll('.view-option-btn');
+    
+    // Initialize dark mode
+    darkModeToggle.checked = isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    
+    // Initialize view buttons
+    viewButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === currentView);
+    });
+    
+    // Event listeners
+    settingsBtn.addEventListener('click', () => {
+        settingsPopup.classList.add('active');
+    });
+    
+    closeSettings.addEventListener('click', () => {
+        settingsPopup.classList.remove('active');
+    });
+    
+    // Dark mode toggle
+    darkModeToggle.addEventListener('change', (e) => {
+        isDarkMode = e.target.checked;
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        localStorage.setItem('darkMode', isDarkMode);
+    });
+    
+    // View options
+    viewButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            filterBtns.forEach(b => b.classList.remove('active'));
+            const view = btn.dataset.view;
+            currentView = view;
+            localStorage.setItem('galleryView', view);
+            
+            // Update active states
+            viewButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            filterGallery(btn.dataset.filter);
+            
+            // Update gallery view
+            updateGalleryView(view);
         });
     });
+    
+    // Close on outside click
+    settingsPopup.addEventListener('click', (e) => {
+        if (e.target === settingsPopup) {
+            settingsPopup.classList.remove('active');
+        }
+    });
+}
+
+// Add function to update gallery view
+function updateGalleryView(view) {
+    const galleryContainer = document.getElementById('gallery-container');
+    galleryContainer.className = `gallery-container ${view}-view`;
 }
 
 // Event listeners
@@ -561,6 +702,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initViewSwitcher();
     renderRecentImages();
+    initCategoryPopup();
+    initSettings();
 });
 
 // Lazy loading implementation

@@ -8,43 +8,83 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <div class="category-popup" id="categoryPopup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h3>Categories</h3>
+                <button class="close-popup">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="categories-grid">
+                <!-- Categories will be populated here -->
+            </div>
+        </div>
+    </div>
+
     <header id="header">
         <div class="container">
             <div class="header-content">
                 <div class="logo-section">
-                    <!-- <i class="fas fa-camera-retro"></i> -->
-                </div>
-                <div class="site-title">
                     <span id="top">Swift Gallery</span>
                 </div>
                 <div class="header-right">
-                    <!-- Placeholder for future header elements -->
+                    <button class="settings-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </header>
 
+    <div class="settings-popup" id="settingsPopup">
+        <div class="settings-popup-content">
+            <div class="settings-header">
+                <h3>Settings</h3>
+                <button class="close-settings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-group">
+                    <h4>Appearance</h4>
+                    <div class="setting-item">
+                        <span>Dark Mode</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h4>View Options</h4>
+                    <div class="view-options">
+                        <button class="view-option-btn" data-view="grid">
+                            <i class="fas fa-th"></i>
+                            Grid View
+                        </button>
+                        <button class="view-option-btn" data-view="list">
+                            <i class="fas fa-list"></i>
+                            List View
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <main>
         <div class="container">
             <section id="gallery">
                 <div class="filter-section slide-up">
-                    <div class="controls-wrapper">
-                        <h3 id="filter"> &nbsp; </h3>
-                        <div class="view-controls">
-                            <button class="view-btn" data-view="grid">
-                                <i class="fas fa-th"></i>
-                            </button>
-                            <button class="view-btn" data-view="list">
-                                <i class="fas fa-list"></i>
-                            </button>
-                        </div>
-                    </div>
                     <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="nature">Nature</button>
-                        <button class="filter-btn" data-filter="flower">Flower</button>
-                        <button class="filter-btn" data-filter="tech">Tech</button>
-                        <button class="filter-btn" data-filter="fruit">Fruit</button>
+                        <button class="all-photos-btn" data-filter="all">
+                            All Photos <span class="category-count">(${totalCount})</span>
+                        </button>
+                        <button class="show-all-categories">
+                            <i class="fas fa-th-large"></i>
+                            View All Categories
+                        </button>
                     </div>
                 </div>
 
