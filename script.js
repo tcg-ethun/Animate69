@@ -259,54 +259,6 @@ async function initGallery() {
     }
 }
 
-// Add these functions for modal preview functionality
-function openModal(images, index) {
-    const modal = document.getElementById('modal');
-    const modalImage = document.getElementById('modal-image');
-    const modalTitle = document.getElementById('modal-title');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-
-    currentIndex = index;
-    
-    // Update modal content
-    modalImage.src = images[index].src;
-    modalTitle.textContent = images[index].category;
-    
-    // Update navigation buttons visibility
-    prevBtn.style.display = index === 0 ? 'none' : 'block';
-    nextBtn.style.display = index === images.length - 1 ? 'none' : 'block';
-    
-    // Show modal
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-
-    // Add event listeners for navigation
-    prevBtn.onclick = () => navigateModal('prev', images);
-    nextBtn.onclick = () => navigateModal('next', images);
-}
-
-function navigateModal(direction, images) {
-    const modalImage = document.getElementById('modal-image');
-    const modalTitle = document.getElementById('modal-title');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-
-    if (direction === 'prev' && currentIndex > 0) {
-        currentIndex--;
-    } else if (direction === 'next' && currentIndex < images.length - 1) {
-        currentIndex++;
-    }
-
-    // Update modal content
-    modalImage.src = images[currentIndex].src;
-    modalTitle.textContent = images[currentIndex].category;
-
-    // Update navigation buttons
-    prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
-    nextBtn.style.display = currentIndex === images.length - 1 ? 'none' : 'block';
-}
-
 // Update renderGallery function
 function renderGallery(images, append = false) {
     if (!append) {
@@ -342,11 +294,6 @@ function renderGallery(images, append = false) {
                      alt="${image.category}">
             </div>
         `;
-
-        // Add click event for preview
-        galleryItem.addEventListener('click', () => {
-            openModal(images, startIndex + index);
-        });
 
         const img = galleryItem.querySelector('img');
         const skeleton = galleryItem.querySelector('.skeleton-loader');
@@ -410,37 +357,6 @@ function resetFilter() {
         filterGallery('all');
     }
 }
-
-// Add event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('modal');
-    const modalClose = document.getElementById('modal-close');
-
-    // Close modal on click
-    modalClose.onclick = () => {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    };
-
-    // Close modal on escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'flex') {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    });
-
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (modal.style.display === 'flex') {
-            if (e.key === 'ArrowLeft') {
-                navigateModal('prev', filteredImages);
-            } else if (e.key === 'ArrowRight') {
-                navigateModal('next', filteredImages);
-            }
-        }
-    });
-});
 
 // Add these functions for modal navigation
 function updateModal(index) {
@@ -910,42 +826,70 @@ async function handleShare(url) {
     }
 }
 
+// Add button interaction handlers
+function handleDownload(button, imageSrc) {
+    button.classList.add('loading');
+    button.innerHTML = '<i class="fas fa-spinner"></i> Downloading...';
+
+    // Simulate download process
+    setTimeout(() => {
+        downloadImage(imageSrc).then(() => {
+            button.classList.remove('loading');
+            button.classList.add('success');
+            button.innerHTML = '<i class="fas fa-check"></i> Downloaded';
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                button.classList.remove('success');
+                button.innerHTML = '<i class="fas fa-download"></i> Download';
+            }, 2000);
+        }).catch(() => {
+            button.classList.remove('loading');
+            button.innerHTML = '<i class="fas fa-download"></i> Download';
+            showNotification('Download failed. Please try again.', 'error');
+        });
+    }, 800);
+}
+
+function handleShare(button, imageSrc, title) {
+    button.classList.add('loading');
+    button.innerHTML = '<i class="fas fa-spinner"></i> Sharing...';
+
+    // Share process
+    setTimeout(() => {
+        shareImage(imageSrc, title).then(() => {
+            button.classList.remove('loading');
+            button.innerHTML = '<i class="fas fa-share-alt"></i> Share';
+            showNotification('Link copied to clipboard!', 'success');
+        }).catch(() => {
+            button.classList.remove('loading');
+            button.innerHTML = '<i class="fas fa-share-alt"></i> Share';
+            showNotification('Sharing failed. Please try again.', 'error');
+        });
+    }, 500);
+}
+
 // Add notification system
-function showNotification(message, type = 'info') {
+function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <div class="notification-content">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
             <span>${message}</span>
         </div>
     `;
-    
     document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => notification.classList.add('show'), 10);
-    
-    // Remove after delay
+
+    // Show notification
+    setTimeout(() => notification.classList.add('show'), 100);
+
+    // Hide and remove notification
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
-
-// Update event listeners
-galleryContainer.addEventListener('click', (e) => {
-    const target = e.target.closest('.action-btn');
-    if (!target) return;
-
-    e.stopPropagation(); // Prevent modal from opening when clicking buttons
-
-    if (target.classList.contains('download-btn')) {
-        handleDownload(target.dataset.src);
-    } else if (target.classList.contains('share-btn')) {
-        handleShare(target.dataset.src);
-    }
-});
 
 // Error handling for images
 function handleImageError(img) {
