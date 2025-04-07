@@ -1,66 +1,77 @@
-// Update image data structure
+// Update image categories array to include 'fruit'
+const imageCategories = ['fruit', 'nature', 'tech', 'flower','food'];
+
 const imageData = [
-    {
-        src: "./pic5.jpg",
-        category: "flower"
-    },
-    {
-        src: "./pic6.jpg",
-        category: "flower"
-    },
-    {
-        src: "./pic7.jpg",
-        category: "nature"
-    },
-    {
-        src: "./pic8.jpg",
-        category: "nature"
-    },
-    {
-        src: "./pic7.jpg",
-        category: "nature"
-    },
-    {
-        src: "./pic8.jpg",
-        category: "nature"
-    },
-    {
-        src: "./pic6.jpg",
-        category: "flower"
-    },
-    {
-        src: "./pic6.jpg",
-        category: "flower"
-    },
-    {
-        src: "./pic3.png",
-        category: "tech"
-    },
-    {
-        src: "./pic8.png",
-        category: "nature"
-    },
-    // {
-    //     src: "./pic9.png",
-    //     category: "nature"
-    // },
-    // {
-    //     src: "./pic5.png",
-    //     category: "nature"
-    // },
-    {
-        src: "./pic4.png",
-        category: "tech"
-    },
-    {
-        src: "./pic2.jpg",
-        category: "tech"
-    },
-    {
-        src: "./pic3.jpg",
-        category: "nature"
-    },
+    { src: "./Photo/pic5.jpg", category: "flower" },
+    { src: "./Photo/pic6.jpg", category: "flower" },
+    { src: "./Photo/pic6.jpg", category: "flower" },
+    { src: "./Photo/pic6.jpg", category: "flower" },
+    { src: "./Photo/pic7.jpg", category: "nature" },
+    { src: "./Photo/pic8.jpg", category: "nature" },
+    { src: "./Photo/pic7.jpg", category: "nature" },
+    { src: "./Photo/pic8.jpg", category: "nature" },
+    { src: "./Photo/pic8.png", category: "nature" },
+    { src: "./Photo/pic3.jpg", category: "nature" },
+    { src: "./Photo/pic3.png", category: "tech" },
+    { src: "./Photo/pic4.png", category: "tech" },
+    { src: "./Photo/1.jpg", category: "fruit" },
+    { src: "./Photo/2.jpg", category: "fruit" },
+    { src: "./Photo/3.jpg", category: "fruit" },
+    { src: "./Photo/4.jpg", category: "fruit" },
+    { src: "./Photo/5.jpg", category: "fruit" },
+    { src: "./Photo/6.jpg", category: "fruit" },
+    { src: "./Photo/7.jpg", category: "fruit" },
+    { src: "./Photo/8.jpg", category: "fruit" },
+    { src: "./Photo/9.jpg", category: "fruit" },
+    { src: "./Photo/10.jpg", category: "fruit" },
+    { src: "./Photo/11.jpg", category: "fruit" },
+    { src: "./Photo/12.jpg", category: "fruit" },
+    { src: "./Photo/13.jpg", category: "fruit" },
+    { src: "./Photo/14.jpg", category: "fruit" },
+    { src: "./Photo/15.jpg", category: "nature" },
+    { src: "./Photo/16.jpg", category: "nature" },
+    { src: "./Photo/17.jpg", category: "nature" },
+    { src: "./Photo/18.jpg", category: "nature" },
+    { src: "./Photo/19.jpg", category: "nature" },
+    { src: "./Photo/20.jpg", category: "nature" },
+    { src: "./Photo/21.jpg", category: "nature" },
+    { src: "./Photo/22.jpg", category: "nature" },
+    { src: "./Photo/23.jpg", category: "nature" },
+
 ];
+
+const categoryLabels = {
+    all: 'All Photos',
+    flower: 'Flowers',
+    nature: 'Nature',
+    tech: 'Technology',
+    fruit: 'Fruits',
+    food: 'Foods',
+};
+
+// Add this function after imageData declaration
+function getCategoryCounts() {
+    const counts = {
+        all: imageData.length
+    };
+    
+    imageCategories.forEach(category => {
+        counts[category] = imageData.filter(img => img.category === category).length;
+    });
+    
+    return counts;
+}
+
+// Update getRandomImages function for better randomization
+function getRandomImages() {
+    const shuffled = imageData.reduce((shuffledArray, currentItem) => {
+        const randomPosition = Math.floor(Math.random() * (shuffledArray.length + 1));
+        shuffledArray.splice(randomPosition, 0, currentItem);
+        return shuffledArray;
+    }, []);
+    
+    return shuffled;
+}
 
 // DOM elements
 const galleryContainer = document.getElementById('gallery-container');
@@ -78,6 +89,7 @@ const recentContainer = document.getElementById('recent-container');
 
 // Add these variables at the top
 let currentView = localStorage.getItem('galleryView') || 'grid';
+let currentCategory = localStorage.getItem('currentCategory') || 'all';
 
 // Current image index for modal
 let currentIndex = 0;
@@ -100,19 +112,21 @@ function updateLoadingIndicator() {
     `;
 }
 
-// Initialize the gallery with images
+// Update the initialization function
 async function initGallery() {
     updateLoadingIndicator();
     loadingIndicator.style.display = 'flex';
     
     try {
+        // Randomize images on each initialization
+        filteredImages = getRandomImages();
+        
         // Add a minimum loading time to prevent flickering
         await Promise.all([
             new Promise(resolve => setTimeout(resolve, 800)),
-            renderGallery(imageData)
+            renderGallery(filteredImages)
         ]);
     } finally {
-        // Add fade out animation
         loadingIndicator.style.opacity = '0';
         setTimeout(() => {
             loadingIndicator.style.display = 'none';
@@ -172,14 +186,7 @@ function renderGallery(images) {
         };
         
         img.onerror = () => {
-            galleryItem.innerHTML = `
-                <div class="image-container">
-                    <img src="./loading.png" 
-                        alt="Image failed to load"
-                        class="error-image"
-                    >
-                </div>
-            `;
+            handleImageError(img);
         };
         
         galleryContainer.appendChild(galleryItem);
@@ -188,13 +195,17 @@ function renderGallery(images) {
 
 // Add reset filter function
 function resetFilter() {
+    // Clear saved category
+    localStorage.setItem('currentCategory', 'all');
+    currentCategory = 'all';
+    
     const allFilterBtn = document.querySelector('[data-filter="all"]');
     if (allFilterBtn) {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         allFilterBtn.classList.add('active');
-        renderGallery(imageData);
+        filterGallery('all');
     }
 }
 
@@ -229,7 +240,7 @@ function updateModal(imageData) {
                 alt="${imageData.category}"
                 class="modal-image"
                 style="transform: scale(${currentZoom})"
-                onerror="this.onerror=null; this.src='./loading.png';"
+                onerror="handleImageError(this);"
             >
             <div class="zoom-controls">
                 <button class="zoom-btn zoom-out" aria-label="Zoom out">
@@ -276,9 +287,15 @@ function nextImage() {
     updateModal(filteredImages[currentIndex]);
 }
 
-// Filter gallery items
+// Update filterGallery function to maintain randomization within categories
 function filterGallery(category) {
-    let filtered = category === 'all' ? imageData : imageData.filter(image => image.category === category);
+    localStorage.setItem('currentCategory', category);
+    currentCategory = category;
+    
+    let filtered = category === 'all' 
+        ? getRandomImages()
+        : getRandomImages().filter(image => image.category === category);
+    
     filteredImages = filtered;
     
     loadingIndicator.style.display = 'flex';
@@ -415,6 +432,34 @@ async function updateImageData() {
     renderGallery(imageData);
 }
 
+// Update your filter buttons HTML generation
+function renderFilterButtons() {
+    const filterContainer = document.querySelector('.filter-buttons');
+    const categoryCounts = getCategoryCounts();
+    
+    filterContainer.innerHTML = `
+        <button class="filter-btn active" data-filter="all">
+            ${categoryLabels.all} <span class="category-count">(${categoryCounts.all})</span>
+        </button>
+        ${imageCategories.map(category => `
+            <button class="filter-btn" data-filter="${category}">
+                ${categoryLabels[category]}
+                <span class="category-count">(${categoryCounts[category]})</span>
+            </button>
+        `).join('')}
+    `;
+    
+    // Re-attach event listeners
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterGallery(btn.dataset.filter);
+        });
+    });
+}
+
 // Event listeners
 modalClose.addEventListener('click', closeModal);
 prevBtn.addEventListener('click', prevImage);
@@ -451,10 +496,25 @@ modal.addEventListener('click', (e) => {
 // Scroll event
 window.addEventListener('scroll', handleScroll);
 
-// Initialize gallery when DOM is loaded
+// Update DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', () => {
+    renderFilterButtons();
+    
+    // Set initial active filter button based on saved category
+    const savedCategory = localStorage.getItem('currentCategory') || 'all';
+    const filterBtn = document.querySelector(`[data-filter="${savedCategory}"]`);
+    
+    if (filterBtn) {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        filterBtn.classList.add('active');
+        
+        // Apply filter with randomization
+        filterGallery(savedCategory);
+    }
+    
     initViewSwitcher();
-    initGallery();
     renderRecentImages();
 });
 
@@ -562,6 +622,12 @@ galleryContainer.addEventListener('click', (e) => {
         handleShare(target.dataset.src);
     }
 });
+
+// Error handling for images
+function handleImageError(img) {
+    img.onerror = null;
+    img.src = './Photo/loading.png';
+}
 
 // Initial call to setup
 initGallery();
