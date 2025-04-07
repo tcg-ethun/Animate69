@@ -60,6 +60,62 @@ body.dark-mode .show-all-categories:hover {
     border-color: #fff;
 }
 
+/* Dark mode styles for settings popup */
+body.dark-mode .settings-popup-content {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+body.dark-mode .settings-header {
+    border-bottom-color: #333;
+}
+
+body.dark-mode .settings-header h3 {
+    color: #fff;
+}
+
+body.dark-mode .close-settings {
+    color: #fff;
+}
+
+body.dark-mode .close-settings:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .settings-group h4 {
+    color: #ccc;
+}
+
+body.dark-mode .setting-item {
+    background: #2d2d2d;
+    color: #fff;
+}
+
+body.dark-mode .view-option-btn {
+    background: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+}
+
+body.dark-mode .view-option-btn:hover:not(.active) {
+    border-color: #3a1c71;
+    background: #232323;
+}
+
+body.dark-mode .view-option-btn.active {
+    background: #3a1c71;
+    border-color: #3a1c71;
+    color: #fff;
+}
+
+body.dark-mode .toggle-slider {
+    background-color: #444;
+}
+
+body.dark-mode .toggle-slider:before {
+    background-color: #fff;
+}
+
 /* Header styles */
 header {
     background: #1a1a1a;
@@ -1268,6 +1324,10 @@ footer {
     background: #2d1657;
 }
 
+.download-btn.success {
+    background: #28a745;
+}
+
 .share-btn {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -1877,55 +1937,4 @@ body.dark-mode .slideshow-section h3 {
     .slideshow-container {
         height: 250px;
     }
-}
-
-/* Download settings styles */
-.download-settings {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 12px;
-    margin-top: 0.5rem;
-}
-
-.format-selector,
-.quality-selector {
-    margin-bottom: 1rem;
-}
-
-.format-selector label,
-.quality-selector label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    color: #666;
-}
-
-#downloadFormat {
-    width: 100%;
-    padding: 8px;
-    border-radius: 8px;
-    border: 2px solid #e9ecef;
-    background: white;
-    font-family: inherit;
-}
-
-#imageQuality {
-    width: 100%;
-    margin-top: 0.5rem;
-}
-
-/* Dark mode styles */
-body.dark-mode .download-settings {
-    background: #2d2d2d;
-}
-
-body.dark-mode #downloadFormat {
-    background: #1a1a1a;
-    border-color: #444;
-    color: #fff;
-}
-
-body.dark-mode .format-selector label,
-body.dark-mode .quality-selector label {
-    color: #ccc;
 }

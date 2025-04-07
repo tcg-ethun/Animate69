@@ -658,11 +658,12 @@ function initCategoryPopup() {
 
 // Update initSettings function to properly handle format settings
 function initSettings() {
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsPopup = document.getElementById('settingsPopup');
-    const closeSettings = document.querySelector('.close-settings');
     const darkModeToggle = document.getElementById('darkModeToggle');
     const viewButtons = document.querySelectorAll('.view-option-btn');
+    
+    // Load saved preferences
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    const currentView = localStorage.getItem('galleryView') || 'grid';
     
     // Initialize dark mode
     darkModeToggle.checked = isDarkMode;
@@ -674,97 +675,18 @@ function initSettings() {
     });
     
     // Event listeners
-    settingsBtn.addEventListener('click', () => {
-        settingsPopup.classList.add('active');
-    });
-    
-    closeSettings.addEventListener('click', () => {
-        settingsPopup.classList.remove('active');
-    });
-    
-    // Dark mode toggle
     darkModeToggle.addEventListener('change', (e) => {
-        isDarkMode = e.target.checked;
-        document.body.classList.toggle('dark-mode', isDarkMode);
-        localStorage.setItem('darkMode', isDarkMode);
+        document.body.classList.toggle('dark-mode', e.target.checked);
+        localStorage.setItem('darkMode', e.target.checked);
     });
     
-    // View options
     viewButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.dataset.view;
-            currentView = view;
             localStorage.setItem('galleryView', view);
-            
-            // Update active states
             viewButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            // Update gallery view
             updateGalleryView(view);
-        });
-    });
-    
-    // Close on outside click
-    settingsPopup.addEventListener('click', (e) => {
-        if (e.target === settingsPopup) {
-            settingsPopup.classList.remove('active');
-        }
-    });
-
-    // Initialize download settings
-    const formatSelect = document.getElementById('downloadFormat');
-    const qualitySlider = document.getElementById('imageQuality');
-    const qualityValue = document.getElementById('qualityValue');
-
-    // Load saved settings from localStorage with fallback to defaults
-    const savedFormat = localStorage.getItem('downloadFormat') || defaultDownloadSettings.format;
-    const savedQuality = localStorage.getItem('imageQuality') || defaultDownloadSettings.quality;
-
-    // Set initial values and update UI
-    if (formatSelect && qualitySlider && qualityValue) {
-        // Update format select
-        formatSelect.value = savedFormat;
-        
-        // Update quality slider and display
-        qualitySlider.value = savedQuality;
-        qualityValue.textContent = `${savedQuality}%`;
-        
-        // Format change handler
-        formatSelect.addEventListener('change', (e) => {
-            const selectedFormat = e.target.value;
-            localStorage.setItem('downloadFormat', selectedFormat);
-            showNotification(`Image format set to ${selectedFormat.toUpperCase()}`, 'success');
-        });
-        
-        // Quality change handlers
-        qualitySlider.addEventListener('input', (e) => {
-            // Real-time update while sliding
-            const value = e.target.value;
-            qualityValue.textContent = `${value}%`;
-        });
-
-        qualitySlider.addEventListener('change', (e) => {
-            // Update storage when sliding stops
-            const value = e.target.value;
-            localStorage.setItem('imageQuality', value);
-            showNotification(`Image quality set to ${value}%`, 'success');
-        });
-    }
-
-    // Update all download buttons to use current settings
-    updateDownloadButtons();
-}
-
-// Add this helper function to update all download buttons
-function updateDownloadButtons() {
-    document.querySelectorAll('.download-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const imageSrc = btn.dataset.src;
-            const format = localStorage.getItem('downloadFormat') || defaultDownloadSettings.format;
-            const quality = parseInt(localStorage.getItem('imageQuality')) || defaultDownloadSettings.quality;
-            await handleDownload(imageSrc, btn, format, quality);
         });
     });
 }
@@ -868,24 +790,17 @@ const setupLazyLoading = () => {
     }
 };
 
-// Update handleDownload function to use passed format and quality
-async function handleDownload(imageSrc, button, format = 'original', quality = 100) {
+// Update handleDownload function to use simple download
+async function handleDownload(imageSrc, button) {
     try {
         if (button) button.classList.add('loading');
-
-        let blob;
-        if (format === 'original') {
-            const response = await fetch(imageSrc);
-            blob = await response.blob();
-        } else {
-            blob = await imageConverter.convertImage(imageSrc, format, quality);
-        }
-
+        
+        const response = await fetch(imageSrc);
+        const blob = await response.blob();
+        
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        const extension = format === 'original' ? 
-            imageSrc.split('.').pop() : 
-            format;
+        const extension = imageSrc.split('.').pop();
         
         link.href = url;
         link.download = `image_${Date.now()}.${extension}`;
@@ -893,7 +808,7 @@ async function handleDownload(imageSrc, button, format = 'original', quality = 1
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-
+        
         if (button) {
             button.classList.remove('loading');
             button.classList.add('success');
