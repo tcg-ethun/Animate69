@@ -136,18 +136,39 @@ document.addEventListener('DOMContentLoaded', () => {
 // Initialize the queue
 const imageQueue = new ImageLoadQueue(4);
 
-// Update image categories array to include 'fruit'
-const imageCategories = ['fruit', 'cartoon' ,'nature', 'creative', 'tech', 'flower','food'];
+// Replace the static imageCategories array with this dynamic function
+function getSortedCategories() {
+    // Count images per category
+    const categoryCount = imageData.reduce((acc, img) => {
+        acc[img.category] = (acc[img.category] || 0) + 1;
+        return acc;
+    }, {});
 
+    // Convert to array and sort by count (highest to lowest)
+    const sortedCategories = Object.entries(categoryCount)
+        .sort((a, b) => b[1] - a[1])  // Sort by count in descending order
+        .map(([category]) => category); // Extract just the category names
+
+    return sortedCategories;
+}
+
+// Replace the static imageCategories array with a getter
+Object.defineProperty(window, 'imageCategories', {
+    get: function() {
+        return getSortedCategories();
+    }
+});
+
+// Update category labels object to match
 const categoryLabels = {
     all: 'All Photos',
     cartoon: 'Cartoon',
     creative: 'Creative',
     flower: 'Flowers',
-    nature: 'Nature',
-    tech: 'Technology',
-    fruit: 'Fruits',
     food: 'Foods',
+    fruit: 'Fruits',
+    nature: 'Nature',
+    tech: 'Technology'
 };
 
 // Add category icons mapping
@@ -203,10 +224,10 @@ const recentContainer = document.getElementById('recent-container');
 // Add these variables at the top
 let currentView = localStorage.getItem('galleryView') || 'grid';
 let currentCategory = localStorage.getItem('currentCategory') || 'all';
+let filteredImages = [];
 
 // Current image index for modal
 let currentIndex = 0;
-let filteredImages = [...imageData];
 
 // Add zoom functionality
 let currentZoom = 1;
@@ -236,16 +257,27 @@ function updateLoadingIndicator() {
     `;
 }
 
+// Update the filter function
+function filterImages(category = currentCategory) {
+    currentCategory = category;
+    localStorage.setItem('currentCategory', category);
+    
+    filteredImages = category === 'all' 
+        ? [...imageData]
+        : imageData.filter(img => img.category === category);
+        
+    return filteredImages;
+}
+
 // Update the initialization function
 async function initGallery() {
     updateLoadingIndicator();
     loadingIndicator.style.display = 'flex';
     
     try {
-        // Randomize images on each initialization
-        filteredImages = getRandomImages();
+        // Filter images based on saved category
+        filteredImages = filterImages();
         
-        // Add a minimum loading time to prevent flickering
         await Promise.all([
             new Promise(resolve => setTimeout(resolve, 800)),
             renderGallery(filteredImages)
@@ -347,6 +379,14 @@ function updateLoadMoreButton(images) {
     }
 }
 
+// Update load more functionality
+function loadMore() {
+    if (currentLoadedItems >= filteredImages.length) return;
+    
+    currentLoadedItems += LOAD_MORE_COUNT;
+    renderGallery(filteredImages, true);
+}
+
 // Add reset filter function
 function resetFilter() {
     // Clear saved category
@@ -392,10 +432,126 @@ function closeModal() {
     }, 300);
 }
 
+// Add these functions for download and share functionality
+async function downloadImage(imageUrl, fileName) {
+    try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName || 'image.jpg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        return true;
+    } catch (error) {
+        console.error('Download failed:', error);
+        return false;
+    }
+}
+
+async function shareImage(imageUrl, title) {
+    try {
+        if (navigator.share) {
+            await navigator.share({
+                title: title || 'Shared Image',
+                text: 'Check out this image from Swift Gallery',
+                url: imageUrl
+            });
+            return true;
+        } else {
+            await navigator.clipboard.writeText(imageUrl);
+            showToast('Link copied to clipboard!');
+            return true;
+        }
+    } catch (error) {
+        console.error('Share failed:', error);
+        return false;
+    }
+}
+
+// Add toast notification function
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Update the modal content function
 function updateModalContent(image) {
+    const modalImage = document.getElementById('modal-image');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    
     modalImage.src = image.src;
-    modalTitle.textContent = image.category;
-    modalDescription.textContent = image.description || '';
+    
+    // Remove existing listeners
+    downloadBtn.replaceWith(downloadBtn.cloneNode(true));
+    shareBtn.replaceWith(shareBtn.cloneNode(true));
+    
+    // Get fresh references
+    const newDownloadBtn = document.getElementById('downloadBtn');
+    const newShareBtn = document.getElementById('shareBtn');
+    
+    // Add download handler
+    newDownloadBtn.addEventListener('click', async () => {
+        newDownloadBtn.classList.add('loading');
+        newDownloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Downloading...</span>';
+        
+        const success = await downloadImage(image.src, image.src.split('/').pop());
+        
+        if (success) {
+            newDownloadBtn.classList.remove('loading');
+            newDownloadBtn.classList.add('success');
+            newDownloadBtn.innerHTML = '<i class="fas fa-check"></i><span>Downloaded!</span>';
+            
+            setTimeout(() => {
+                newDownloadBtn.classList.remove('success');
+                newDownloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download</span>';
+            }, 2000);
+        } else {
+            newDownloadBtn.classList.remove('loading');
+            newDownloadBtn.innerHTML = '<i class="fas fa-download"></i><span>Download</span>';
+            showToast('Download failed. Please try again.', 'error');
+        }
+    });
+    
+    // Add share handler
+    newShareBtn.addEventListener('click', async () => {
+        newShareBtn.classList.add('loading');
+        newShareBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Sharing...</span>';
+        
+        const success = await shareImage(image.src, 'Swift Gallery Image');
+        
+        if (success) {
+            newShareBtn.classList.remove('loading');
+            newShareBtn.classList.add('success');
+            newShareBtn.innerHTML = '<i class="fas fa-check"></i><span>Shared!</span>';
+            
+            setTimeout(() => {
+                newShareBtn.classList.remove('success');
+                newShareBtn.innerHTML = '<i class="fas fa-share-alt"></i><span>Share</span>';
+            }, 2000);
+        } else {
+            newShareBtn.classList.remove('loading');
+            newShareBtn.innerHTML = '<i class="fas fa-share-alt"></i><span>Share</span>';
+            showToast('Sharing failed. Please try again.', 'error');
+        }
+    });
 }
 
 function updateNavigationButtons(images) {
@@ -450,6 +606,33 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+});
+
+// Update category button click handler
+function handleCategoryClick(category) {
+    currentCategory = category;
+    filteredImages = filterImages(category);
+    currentLoadedItems = ITEMS_PER_PAGE;
+    
+    // Update active state of category buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === category);
+    });
+    
+    // Re-render gallery
+    renderGallery(filteredImages);
+    
+    // Update URL without page reload
+    const url = new URL(window.location);
+    url.searchParams.set('category', category);
+    window.history.pushState({}, '', url);
+}
+
+// Add this to handle browser back/forward
+window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category') || 'all';
+    handleCategoryClick(category);
 });
 
 // Update filterGallery function
@@ -609,10 +792,11 @@ async function updateImageData() {
 
 // Update renderFilterButtons function
 function renderFilterButtons() {
-    const filterContainer = document.querySelector('.filter-section');
+    const categories = imageCategories; // This will now be dynamic
     const counts = getCategoryCounts();
     const savedCategory = localStorage.getItem('currentCategory') || 'all';
     
+    const filterContainer = document.querySelector('.filter-section');
     filterContainer.innerHTML = `
         <button class="all-photos-btn" data-filter="${savedCategory}">
             ${categoryLabels[savedCategory]} <span class="category-count">(${counts[savedCategory]})</span>
@@ -769,6 +953,13 @@ filterBtns.forEach(btn => {
 
 // Scroll event
 window.addEventListener('scroll', handleScroll);
+
+// Initialize gallery with URL parameters
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category') || currentCategory;
+    handleCategoryClick(category);
+});
 
 // Update DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', () => {
@@ -1033,6 +1224,42 @@ function initSlideshow() {
 
     track.addEventListener('mouseenter', () => clearInterval(slideInterval));
     track.addEventListener('mouseleave', startSlideshow);
+}
+
+// Add button state update function
+function updateButtonState(button, state) {
+    const icon = button.querySelector('i');
+    const text = button.querySelector('span');
+    
+    switch(state) {
+        case 'loading':
+            button.classList.add('loading');
+            icon.className = 'fas fa-spinner fa-spin';
+            text.textContent = button.classList.contains('download-btn') ? 'Downloading...' : 'Sharing...';
+            break;
+            
+        case 'success':
+            button.classList.remove('loading');
+            button.classList.add('success');
+            icon.className = 'fas fa-check';
+            text.textContent = button.classList.contains('download-btn') ? 'Downloaded' : 'Shared';
+            
+            setTimeout(() => {
+                button.classList.remove('success');
+                icon.className = button.classList.contains('download-btn') ? 'fas fa-download' : 'fas fa-share-alt';
+                text.textContent = button.classList.contains('download-btn') ? 'Download' : 'Share';
+            }, 2000);
+            break;
+            
+        case 'error':
+            button.classList.remove('loading');
+            icon.className = 'fas fa-exclamation-circle';
+            setTimeout(() => {
+                icon.className = button.classList.contains('download-btn') ? 'fas fa-download' : 'fas fa-share-alt';
+                text.textContent = button.classList.contains('download-btn') ? 'Download' : 'Share';
+            }, 2000);
+            break;
+    }
 }
 
 // Initial call to setup

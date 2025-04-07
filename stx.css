@@ -597,57 +597,55 @@ main {
 /* Fix action buttons positioning */
 .modal-actions {
     position: fixed;
-    bottom: 20px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    flex-direction: row;
-    gap: 12px;
-    padding: 15px 20px;
-    border-radius: 50px;
+    gap: 15px;
     z-index: 2002;
+    background: transparent;
 }
 
 /* Update button styles */
 .modal-action-btn {
+    min-width: 140px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-family: 'pop', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 10px 24px;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-family: 'pop', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 500;
-    min-width: 130px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
 }
 
 /* New download button style */
 .download-btn {
-    background: linear-gradient(135deg, #4ade80, #22c55e);
+    background: #22c55e;
     color: white;
-    box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
 }
 
 .download-btn:hover {
+    background: #16a34a;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
-    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
 }
 
 /* Share button style */
 .share-btn {
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
     background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .share-btn:hover {
+    border-color: rgba(255, 255, 255, 0.6);
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Button icons */
@@ -660,7 +658,7 @@ main {
     transform: scale(1.1);
 }
 
-/* Responsive adjustments */
+/* Make sure settings button is visible on mobile */
 @media screen and (max-width: 768px) {
     .modal-actions {
         bottom: 15px;
@@ -675,11 +673,23 @@ main {
 }
 
 .modal-caption {
+    position: relative;
     color: white;
     text-align: center;
     margin-top: 1rem;
+    margin-bottom: 4rem; /* Add space for buttons */
+    z-index: 2001;
 }
 
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: white;
+    text-transform: capitalize; /* Capitalize first letter */
+}
+
+/* Modal controls */
 .modal-controls {
     position: absolute;
     width: 100%;
@@ -1596,30 +1606,31 @@ footer {
 /* Add notification styles */
 .notification {
     position: fixed;
-    bottom: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
+    bottom: 20px;
+    right: 20px;
     padding: 12px 24px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1100;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(100px);
+    opacity: 0;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    z-index: 2500;
 }
 
 .notification.show {
-    bottom: 20px;
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .notification.success {
-    border-left: 4px solid #28a745;
+    background: #4ade80;
+    color: white;
 }
 
 .notification.error {
-    border-left: 4px solid #dc3545;
+    background: #ef4444;
+    color: white;
 }
 
 .notification-content {
@@ -1632,71 +1643,14 @@ footer {
     font-size: 1.2rem;
 }
 
-.notification.success i {
-    color: #28a745;
+/* Button loading and success states */
+.modal-action-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
 }
 
-.notification.error i {
-    color: #dc3545;
-}
-
-/* Gallery action buttons styles */
-.gallery-actions {
-    display: none; /* Hide by default */
-}
-
-.action-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex: 1;
-    justify-content: center;
-    margin: 0 4px;
-}
-
-.download-btn {
-    background: #3a1c71;
-    color: white;
-}
-
-.download-btn:hover {
-    background: #2d1657;
-}
-
-.download-btn.success {
-    background: #28a745;
-}
-
-.share-btn {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    color: #212529;
-}
-
-.share-btn:hover {
-    background: #e9ecef;
-}
-
-/* Responsive styles for buttons */
-@media screen and (max-width: 480px) {
-    .gallery-actions {
-        padding: 6px;
-    }
-
-    .action-btn {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-    }
-
-    .action-btn i {
-        font-size: 0.8rem;
-    }
+.modal-action-btn.success {
+    background: #4ade80 !important;
 }
 
 /* Add No Results styles */
@@ -2470,4 +2424,58 @@ body.dark-mode .share-btn {
 body.dark-mode .share-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Toast notification styles */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2500;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast.success {
+    background: #4ade80;
+    color: white;
+}
+
+.toast.error {
+    background: #ef4444;
+    color: white;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Button states */
+.modal-action-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.modal-action-btn.success {
+    background: #4ade80 !important;
+}
+
+.modal-action-btn i {
+    transition: transform 0.3s ease;
+}
+
+.modal-action-btn:not(.loading):hover i {
+    transform: scale(1.1);
 }
