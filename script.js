@@ -96,92 +96,10 @@ const imageQueue = new ImageLoadQueue(4);
 // Update image categories array to include 'fruit'
 const imageCategories = ['fruit', 'cartoon' ,'nature', 'creative', 'tech', 'flower','food'];
 
-const imageData = [
-    { src: "./Photo/pic7.jpg", category: "nature" },
-    { src: "./Photo/pic8.jpg", category: "nature" },
-    { src: "./Photo/pic8.jpg", category: "nature" },
-    { src: "./Photo/pic8.png", category: "nature" },
-    { src: "./Photo/pic3.jpg", category: "nature" },
-    { src: "./Photo/15.jpg", category: "nature" },
-    { src: "./Photo/16.jpg", category: "nature" },
-    { src: "./Photo/17.jpg", category: "nature" },
-    { src: "./Photo/18.jpg", category: "nature" },
-    { src: "./Photo/19.jpg", category: "nature" },
-    { src: "./Photo/20.jpg", category: "nature" },
-    { src: "./Photo/21.jpg", category: "nature" },
-    { src: "./Photo/22.jpg", category: "nature" },
-    { src: "./Photo/23.jpg", category: "nature" },
-    { src: "./Photo/27.jpg", category: "nature" },
-    { src: "./Photo/28.jpg", category: "nature" },
-    { src: "./Photo/29.jpg", category: "nature" },
-    { src: "./Photo/30.jpg", category: "nature" },
-    { src: "./Photo/31.jpg", category: "nature" },
-    { src: "./Photo/32.jpg", category: "nature" },
-
-
-    { src: "./Photo/1.jpg", category: "fruit" },
-    { src: "./Photo/2.jpg", category: "fruit" },
-    { src: "./Photo/3.jpg", category: "fruit" },
-    { src: "./Photo/4.jpg", category: "fruit" },
-    { src: "./Photo/5.jpg", category: "fruit" },
-    { src: "./Photo/6.jpg", category: "fruit" },
-    { src: "./Photo/7.jpg", category: "fruit" },
-    { src: "./Photo/8.jpg", category: "fruit" },
-    { src: "./Photo/9.jpg", category: "fruit" },
-    { src: "./Photo/10.jpg", category: "fruit" },
-    { src: "./Photo/11.jpg", category: "fruit" },
-    { src: "./Photo/12.jpg", category: "fruit" },
-    { src: "./Photo/13.jpg", category: "fruit" },
-    { src: "./Photo/14.jpg", category: "fruit" },
-
-    { src: "./Photo/25.jpg", category: "tech" },
-    { src: "./Photo/26.jpg", category: "tech" },
-    { src: "./Photo/24.jpg", category: "tech" },
- 
-    { src: "./Photo/pic5.jpg", category: "flower" },
-
-    { src: "./Photo/34.jpg", category: "food" },
-    { src: "./Photo/35.jpg", category: "food" },
-    { src: "./Photo/36.jpg", category: "food" },
-    { src: "./Photo/37.jpg", category: "food" },
-    { src: "./Photo/38.jpg", category: "food" },
-    { src: "./Photo/39.jpg", category: "food" },
-    { src: "./Photo/40.jpg", category: "food" },
-    { src: "./Photo/41.jpg", category: "food" },
-    { src: "./Photo/42.jpg", category: "food" },
-    { src: "./Photo/43.jpg", category: "food" },
-    { src: "./Photo/44.jpg", category: "food" },
-
-
-    { src: "./Photo/46.webp", category: "creative" },
-    { src: "./Photo/47.webp", category: "creative" },
-    { src: "./Photo/48.webp", category: "creative" },
-    { src: "./Photo/49.webp", category: "creative" },
-    { src: "./Photo/50.webp", category: "creative" },
-    { src: "./Photo/51.webp", category: "creative" },
-    { src: "./Photo/52.webp", category: "creative" },
-    { src: "./Photo/53.webp", category: "creative" },
-    { src: "./Photo/54.webp", category: "creative" },
-    { src: "./Photo/55.webp", category: "creative" },
-    { src: "./Photo/56.webp", category: "creative" },
-    { src: "./Photo/57.webp", category: "creative" },
-    { src: "./Photo/58.webp", category: "creative" },
-    { src: "./Photo/59.webp", category: "creative" },
-    { src: "./Photo/60.webp", category: "creative" },
-    { src: "./Photo/61.webp", category: "creative" },
-
-
-
-
-
-
-
-];
-
 const categoryLabels = {
     all: 'All Photos',
-  cartoon: 'Cartoon',
-  creative: 'Creative',
+    cartoon: 'Cartoon',
+    creative: 'Creative',
     flower: 'Flowers',
     nature: 'Nature',
     tech: 'Technology',
@@ -192,7 +110,7 @@ const categoryLabels = {
 // Add category icons mapping
 const categoryIcons = {
     all: 'fa-images',
-  creative: 'creative',
+    creative: 'creative',
     cartoon: 'cartoon',
     flower: 'fa-fan',
     nature: 'fa-leaf',
@@ -295,7 +213,7 @@ async function initGallery() {
     }
 }
 
-// Updated renderGallery function with improved loading
+// Updated renderGallery function with skeleton loading
 async function renderGallery(images, append = false) {
     if (!append) {
         galleryContainer.innerHTML = '';
@@ -317,9 +235,6 @@ async function renderGallery(images, append = false) {
     const startIndex = append ? currentLoadedItems - LOAD_MORE_COUNT : 0;
     const itemsToRender = images.slice(startIndex, currentLoadedItems);
 
-    // Preload batch of images before rendering
-    await preloadImages(itemsToRender, 0, itemsToRender.length);
-
     // Create document fragment for better performance
     const fragment = document.createDocumentFragment();
 
@@ -330,10 +245,13 @@ async function renderGallery(images, append = false) {
         
         galleryItem.innerHTML = `
             <div class="image-container">
-                <img src="${image.src}" 
+                <div class="skeleton-loader"></div>
+                <img 
+                    data-src="${image.src}" 
                     alt="${image.category}"
                     loading="lazy"
                     decoding="async"
+                    class="gallery-image"
                 >
             </div>
             <div class="gallery-actions">
@@ -345,6 +263,14 @@ async function renderGallery(images, append = false) {
                 </button>
             </div>
         `;
+
+        // Set up image loading
+        const img = galleryItem.querySelector('img');
+        img.onload = () => {
+            img.classList.add('loaded');
+            galleryItem.querySelector('.skeleton-loader').style.display = 'none';
+        };
+        img.src = image.src; // Start loading the image
 
         galleryItem.addEventListener('click', (e) => {
             if (!e.target.closest('.action-btn')) {
@@ -362,6 +288,36 @@ async function renderGallery(images, append = false) {
     if (currentLoadedItems < images.length) {
         preloadImages(images, currentLoadedItems, LOAD_MORE_COUNT);
     }
+}
+
+// Update the preloadImages function to work with the new loading system
+function preloadImages(images, start, count) {
+    const preloadArray = images.slice(start, start + count);
+    return Promise.all(preloadArray.map(imageData => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                // Find and update any matching skeleton loaders
+                const galleryItems = document.querySelectorAll('.gallery-item');
+                galleryItems.forEach(item => {
+                    const loadingImg = item.querySelector(`img[data-src="${imageData.src}"]`);
+                    if (loadingImg) {
+                        loadingImg.classList.add('loaded');
+                        const skeleton = item.querySelector('.skeleton-loader');
+                        if (skeleton) {
+                            skeleton.style.display = 'none';
+                        }
+                    }
+                });
+                resolve(imageData);
+            };
+            img.onerror = () => {
+                console.warn(`Failed to load image: ${imageData.src}`);
+                resolve(imageData);
+            };
+            img.src = imageData.src;
+        });
+    }));
 }
 
 // Add function to handle load more button
@@ -956,8 +912,15 @@ galleryContainer.addEventListener('click', (e) => {
 
 // Error handling for images
 function handleImageError(img) {
-    img.onerror = null;
-    img.src = './Photo/loading.png';
+    const container = img.closest('.image-container');
+    if (container) {
+        const skeleton = container.querySelector('.skeleton-loader');
+        if (skeleton) {
+            skeleton.style.background = '#f8d7da'; // Error state background
+        }
+    }
+    img.src = './Photo/error-placeholder.png'; // Replace with your error image
+    img.classList.add('loaded');
 }
 
 // Add slideshow functionality
