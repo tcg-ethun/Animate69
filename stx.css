@@ -1938,3 +1938,33 @@ body.dark-mode .slideshow-section h3 {
         height: 250px;
     }
 }
+
+/* Image metadata styles */
+.image-metadata {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.timestamp {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timestamp i {
+    font-size: 1rem;
+    color: #3a1c71;
+}
+
+/* Dark mode styles */
+body.dark-mode .image-metadata {
+    color: #999;
+}
+
+body.dark-mode .timestamp i {
+    color: #8b6cc4;
+}

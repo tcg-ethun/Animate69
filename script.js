@@ -7,50 +7,55 @@ const defaultDownloadSettings = {
     quality: 100  // Set default to maximum quality
 };
 
+// Update the imageData structure to include timestamp
 const imageData = [
-    { src: "./Photo/pic7.jpg", category: "nature" },
-    { src: "./Photo/pic8.jpg", category: "nature" },
+    {
+        src: "./Photo/pic7.jpg",
+        category: "nature",
+        timestamp: new Date().toISOString() // Current date as default
+    },
+    { src: "./Photo/pic8.jpg", category: "nature", timestamp: new Date().toISOString() },
     // { src: "./Photo/pic7.jpg", category: "nature" },
-    { src: "./Photo/pic8.jpg", category: "nature" },
-    { src: "./Photo/pic8.png", category: "nature" },
-    { src: "./Photo/pic3.jpg", category: "nature" },
-    { src: "./Photo/15.jpg", category: "nature" },
-    { src: "./Photo/16.jpg", category: "nature" },
-    { src: "./Photo/17.jpg", category: "nature" },
-    { src: "./Photo/18.jpg", category: "nature" },
-    { src: "./Photo/19.jpg", category: "nature" },
-    { src: "./Photo/20.jpg", category: "nature" },
-    { src: "./Photo/21.jpg", category: "nature" },
-    { src: "./Photo/22.jpg", category: "nature" },
-    { src: "./Photo/23.jpg", category: "nature" },
-    { src: "./Photo/27.jpg", category: "nature" },
-    { src: "./Photo/28.jpg", category: "nature" },
-    { src: "./Photo/29.jpg", category: "nature" },
-    { src: "./Photo/30.jpg", category: "nature" },
-    { src: "./Photo/31.jpg", category: "nature" },
-    { src: "./Photo/32.jpg", category: "nature" },
+    { src: "./Photo/pic8.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/pic8.png", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/pic3.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/15.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/16.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/17.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/18.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/19.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/20.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/21.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/22.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/23.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/27.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/28.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/29.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/30.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/31.jpg", category: "nature", timestamp: new Date().toISOString() },
+    { src: "./Photo/32.jpg", category: "nature", timestamp: new Date().toISOString() },
 
 
-    { src: "./Photo/1.jpg", category: "fruit" },
-    { src: "./Photo/2.jpg", category: "fruit" },
-    { src: "./Photo/3.jpg", category: "fruit" },
-    { src: "./Photo/4.jpg", category: "fruit" },
-    { src: "./Photo/5.jpg", category: "fruit" },
-    { src: "./Photo/6.jpg", category: "fruit" },
-    { src: "./Photo/7.jpg", category: "fruit" },
-    { src: "./Photo/8.jpg", category: "fruit" },
-    { src: "./Photo/9.jpg", category: "fruit" },
-    { src: "./Photo/10.jpg", category: "fruit" },
-    { src: "./Photo/11.jpg", category: "fruit" },
-    { src: "./Photo/12.jpg", category: "fruit" },
-    { src: "./Photo/13.jpg", category: "fruit" },
-    { src: "./Photo/14.jpg", category: "fruit" },
+    { src: "./Photo/1.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/2.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/3.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/4.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/5.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/6.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/7.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/8.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/9.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/10.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/11.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/12.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/13.jpg", category: "fruit", timestamp: new Date().toISOString() },
+    { src: "./Photo/14.jpg", category: "fruit", timestamp: new Date().toISOString() },
 
-    { src: "./Photo/25.jpg", category: "tech" },
-    { src: "./Photo/26.jpg", category: "tech" },
-    { src: "./Photo/24.jpg", category: "tech" },
+    { src: "./Photo/25.jpg", category: "tech", timestamp: new Date().toISOString() },
+    { src: "./Photo/26.jpg", category: "tech", timestamp: new Date().toISOString() },
+    { src: "./Photo/24.jpg", category: "tech", timestamp: new Date().toISOString() },
  
-    { src: "./Photo/pic5.jpg", category: "flower" },
+    { src: "./Photo/pic5.jpg", category: "flower", timestamp: new Date().toISOString() },
 
 
 
@@ -58,6 +63,50 @@ const imageData = [
 
 
 ];
+
+// Add function to fetch and update timestamps from GitHub
+async function updateImageTimestamps() {
+    const owner = 'tcg-ethun';
+    const repo = 'Animate69';
+    const path = './Photo'; // Your images folder path
+
+    try {
+        const response = await fetch(
+            `https://api.github.com/repos/${owner}/${repo}/commits?path=${path}`,
+            {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+
+        if (!response.ok) throw new Error('Failed to fetch commit data');
+
+        const commits = await response.json();
+        
+        // Update timestamps for each image
+        imageData.forEach(image => {
+            const fileName = image.src.split('/').pop();
+            const imageCommit = commits.find(commit => 
+                commit.commit.message.includes(fileName)
+            );
+            
+            if (imageCommit) {
+                image.timestamp = new Date(imageCommit.commit.author.date).toISOString();
+            }
+        });
+
+        // Save updated timestamps to localStorage
+        localStorage.setItem('imageTimestamps', JSON.stringify(
+            imageData.reduce((acc, img) => ({
+                ...acc,
+                [img.src]: img.timestamp
+            }), {})
+        ));
+    } catch (error) {
+        console.error('Error updating timestamps:', error);
+    }
+}
 
 const categoryLabels = {
     all: 'All Photos',
