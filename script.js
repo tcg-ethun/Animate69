@@ -1,59 +1,35 @@
-// Sample image data
+// Update image data structure
 const imageData = [
     {
-        id: 1,
         src: "./pic5.jpg",
-        title: "Flower",
-        description: "Red Queen",
         category: "flower"
     },
     {
-        id: 2,
         src: "./pic6.jpg",
-        title: "Flower 2",
-        description: "Red Queen",
         category: "flower"
     },
     {
-        id: 3,
         src: "./pic7.jpg",
-        title: "Nature",
-        description: "Crashing waves at sunset",
         category: "nature"
     },
     {
-        id: 4,
         src: "./pic8.jpg",
-        title: "Nature 2",
-        description: "Urban life in black and white",
         category: "nature"
     },
     {
-        id: 5,
         src: "./pic7.jpg",
-        title: "Nature 3",
-        description: "Artistic portrait photography",
         category: "nature"
     },
     {
-        id: 6,
         src: "./pic8.jpg",
-        title: "Nature 4",
-        description: "Colorful light painting",
         category: "nature"
     },
     {
-        id: 7,
         src: "./pic6.jpg",
-        title: "Flower 3",
-        description: "Pathway through a misty forest",
         category: "flower"
     },
     {
-        id: 8,
         src: "./pic6.jpg",
-        title: "Flower 4",
-        description: "Modern architectural detail",
         category: "flower"
     }
 ];
@@ -113,9 +89,22 @@ async function initGallery() {
     }
 }
 
-// Render gallery items
+// Update renderGallery function
 function renderGallery(images) {
     galleryContainer.innerHTML = '';
+    
+    if (images.length === 0) {
+        galleryContainer.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>No images found in this category</p>
+                <button class="reset-filter" onclick="resetFilter()">
+                    Show all images
+                </button>
+            </div>
+        `;
+        return;
+    }
     
     images.forEach((image, index) => {
         const galleryItem = document.createElement('div');
@@ -129,19 +118,15 @@ function renderGallery(images) {
             galleryItem.innerHTML = `
                 <div class="image-container">
                     <img src="${image.src}" 
-                        alt="${image.title}"
+                        alt="${image.category}"
                         loading="lazy"
                     >
-                    <div class="overlay">
-                        <h3 class="title">${image.title}</h3>
-                        <p class="description">${image.description}</p>
-                    </div>
                 </div>
                 <div class="gallery-actions">
                     <button class="action-btn download-btn" data-src="${image.src}">
                         <i class="fas fa-download"></i>
                     </button>
-                    <button class="action-btn share-btn" data-src="${image.src}" data-title="${image.title}">
+                    <button class="action-btn share-btn" data-src="${image.src}">
                         <i class="fas fa-share-alt"></i>
                     </button>
                 </div>
@@ -166,6 +151,18 @@ function renderGallery(images) {
     });
 }
 
+// Add reset filter function
+function resetFilter() {
+    const allFilterBtn = document.querySelector('[data-filter="all"]');
+    if (allFilterBtn) {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        allFilterBtn.classList.add('active');
+        renderGallery(imageData);
+    }
+}
+
 // Open modal with image
 function openModal(images, index) {
     currentIndex = index;
@@ -185,7 +182,7 @@ function closeModal() {
     currentZoomIndex = 0;
 }
 
-// Update modal content based on current index
+// Update modal content
 function updateModal(imageData) {
     const modalContent = document.querySelector('.modal-content');
     modalContent.innerHTML = `
@@ -194,7 +191,7 @@ function updateModal(imageData) {
         </button>
         <div class="modal-image-container">
             <img src="${imageData.src}" 
-                alt="${imageData.title}" 
+                alt="${imageData.category}"
                 class="modal-image"
                 style="transform: scale(${currentZoom})"
             >
@@ -207,14 +204,11 @@ function updateModal(imageData) {
                 </button>
             </div>
         </div>
-        <div class="modal-caption">
-            <h3 class="modal-title">${imageData.title}</h3>
-            <p class="modal-description">${imageData.description}</p>
         <div class="gallery-actions">
             <button class="action-btn download-btn" data-src="${imageData.src}">
                 <i class="fas fa-download"></i> Download
             </button>
-            <button class="action-btn share-btn" data-src="${imageData.src}" data-title="${imageData.title}">
+            <button class="action-btn share-btn" data-src="${imageData.src}">
                 <i class="fas fa-share-alt"></i> Share
             </button>
         </div>
@@ -230,8 +224,8 @@ function updateModal(imageData) {
     closeBtn.addEventListener('click', closeModal);
     zoomIn.addEventListener('click', handleZoomIn);
     zoomOut.addEventListener('click', handleZoomOut);
-    downloadBtn.addEventListener('click', () => handleDownload(imageData.src, imageData.title));
-    shareBtn.addEventListener('click', () => handleShare(imageData.title, imageData.src, imageData.description));
+    downloadBtn.addEventListener('click', () => handleDownload(imageData.src));
+    shareBtn.addEventListener('click', () => handleShare(imageData.src));
 }
 
 // Navigate to previous image
@@ -411,12 +405,12 @@ function handleDownload(imageSrc) {
     document.body.removeChild(link);
 }
 
-// Share handler function
-async function handleShare(title, url) {
+// Update share handler
+async function handleShare(url) {
     if (navigator.share) {
         try {
             await navigator.share({
-                title: title,
+                title: 'Swift Gallery Image',
                 text: 'Check out this image from Swift Gallery',
                 url: window.location.origin + '/' + url
             });
@@ -424,14 +418,13 @@ async function handleShare(title, url) {
             console.log('Share failed:', err);
         }
     } else {
-        // Fallback for browsers that don't support Web Share API
         const dummy = document.createElement('input');
         document.body.appendChild(dummy);
         dummy.value = window.location.origin + '/' + url;
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
-        alert('Link copied to clipboard!');
+        showNotification('Link copied to clipboard!', 'success');
     }
 }
 
@@ -468,7 +461,7 @@ galleryContainer.addEventListener('click', (e) => {
     if (target.classList.contains('download-btn')) {
         handleDownload(target.dataset.src);
     } else if (target.classList.contains('share-btn')) {
-        handleShare(target.dataset.title, target.dataset.src);
+        handleShare(target.dataset.src);
     }
 });
 
