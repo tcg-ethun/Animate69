@@ -51,5 +51,5 @@ MIT License - See [LICENSE](LICENSE)
 - Font: Google Fonts
 - Images: Various sources
 
-Made with ❤️ by [Ethun]
+Made with ❤️ by Ethun .
 
