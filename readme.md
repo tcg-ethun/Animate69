@@ -16,8 +16,6 @@
 - **Advanced Filtering**
   - Category-based filtering
   - Multi-category support
-  - Real-time search
-  - Recently added section
 
 ### 🌓 Themes
 - **Dark/Light Mode**
