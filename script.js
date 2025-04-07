@@ -104,6 +104,11 @@ let currentZoomIndex = 0;
 // Add at the top with your other constants
 const RECENT_DAYS = 7; // Show images added within last 7 days
 
+// Add these variables at the top with other constants
+const ITEMS_PER_PAGE = 20;
+const LOAD_MORE_COUNT = 10;
+let currentLoadedItems = ITEMS_PER_PAGE;
+
 // Update the loading indicator HTML
 function updateLoadingIndicator() {
     const loadingIndicator = document.getElementById('loading');
@@ -136,9 +141,12 @@ async function initGallery() {
     }
 }
 
-// Update renderGallery function
-function renderGallery(images) {
-    galleryContainer.innerHTML = '';
+// Update renderGallery function to handle pagination
+function renderGallery(images, append = false) {
+    if (!append) {
+        galleryContainer.innerHTML = '';
+        currentLoadedItems = ITEMS_PER_PAGE;
+    }
     
     if (images.length === 0) {
         galleryContainer.innerHTML = `
@@ -150,10 +158,16 @@ function renderGallery(images) {
                 </button>
             </div>
         `;
+        updateLoadMoreButton(images);
         return;
     }
     
-    images.forEach((image, index) => {
+    const itemsToRender = images.slice(
+        append ? currentLoadedItems - LOAD_MORE_COUNT : 0,
+        currentLoadedItems
+    );
+    
+    itemsToRender.forEach((image, index) => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item fade-in';
         galleryItem.dataset.category = image.category;
@@ -192,6 +206,35 @@ function renderGallery(images) {
         
         galleryContainer.appendChild(galleryItem);
     });
+    
+    updateLoadMoreButton(images);
+}
+
+// Add function to handle load more button
+function updateLoadMoreButton(images) {
+    let loadMoreBtn = document.querySelector('.load-more-btn');
+    
+    if (!loadMoreBtn) {
+        loadMoreBtn = document.createElement('div');
+        loadMoreBtn.className = 'load-more-btn';
+        document.querySelector('.gallery-container').after(loadMoreBtn);
+    }
+    
+    if (currentLoadedItems < images.length) {
+        loadMoreBtn.innerHTML = `
+            <button class="load-more">
+                Load More <span>(${images.length - currentLoadedItems} more)</span>
+            </button>
+        `;
+        loadMoreBtn.style.display = 'flex';
+        
+        loadMoreBtn.querySelector('button').addEventListener('click', () => {
+            currentLoadedItems += LOAD_MORE_COUNT;
+            renderGallery(images, true);
+        });
+    } else {
+        loadMoreBtn.style.display = 'none';
+    }
 }
 
 // Add reset filter function
@@ -288,7 +331,7 @@ function nextImage() {
     updateModal(filteredImages[currentIndex]);
 }
 
-// Update filterGallery function to maintain randomization within categories
+// Update filterGallery function
 function filterGallery(category) {
     localStorage.setItem('currentCategory', category);
     currentCategory = category;
@@ -298,6 +341,7 @@ function filterGallery(category) {
         : getRandomImages().filter(image => image.category === category);
     
     filteredImages = filtered;
+    currentLoadedItems = ITEMS_PER_PAGE; // Reset pagination
     
     loadingIndicator.style.display = 'flex';
     setTimeout(() => {

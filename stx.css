@@ -166,6 +166,9 @@ nav a:hover {
 /* Gallery styles */
 main {
     flex: 1;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
     padding: 2rem 0;
 }
 
@@ -624,10 +627,10 @@ main {
 
 /* Footer styles */
 footer {
+    margin-top: auto;
     background-color: #1a1a1a;
     color: rgba(255,255,255,0.8);
     padding: 3rem 0 2rem;
-    margin-top: 4rem;
 }
 
 .footer-content {
@@ -1313,4 +1316,37 @@ footer {
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.75rem;
+}
+
+/* Load More Button styles */
+.load-more-btn {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    padding: 1rem;
+}
+
+.load-more {
+    background: #3a1c71;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: 'pop', sans-serif;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.load-more:hover {
+    background: #2d1657;
+    transform: translateY(-2px);
+}
+
+.load-more span {
+    font-size: 0.85rem;
+    opacity: 0.8;
 }
