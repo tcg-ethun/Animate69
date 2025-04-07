@@ -1,3 +1,98 @@
+// Add this function at the top of your script
+function preloadImages(images, start, count) {
+    const preloadArray = images.slice(start, start + count);
+    return Promise.all(preloadArray.map(imageData => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(imageData);
+            img.onerror = () => {
+                console.warn(`Failed to load image: ${imageData.src}`);
+                resolve(imageData); // Resolve anyway to not block other images
+            };
+            img.src = imageData.src;
+        });
+    }));
+}
+
+// Add this class for managing image loading queue
+class ImageLoadQueue {
+    constructor(concurrency = 4) {
+        this.queue = [];
+        this.running = 0;
+        this.concurrency = concurrency;
+    }
+
+    add(imageData) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({
+                imageData,
+                resolve,
+                reject
+            });
+            this.processNext();
+        });
+    }
+
+    async processNext() {
+        if (this.running >= this.concurrency || this.queue.length === 0) return;
+
+        this.running++;
+        const { imageData, resolve, reject } = this.queue.shift();
+
+        try {
+            const img = new Image();
+            await new Promise((res, rej) => {
+                img.onload = res;
+                img.onerror = rej;
+                img.src = imageData.src;
+            });
+            resolve(imageData);
+        } catch (err) {
+            reject(err);
+        } finally {
+            this.running--;
+            this.processNext();
+        }
+    }
+}
+
+// Add this utility function for image optimization
+const imageOptimizer = {
+    getOptimizedSrc(src, width = 800) {
+        // Check if browser supports modern image formats
+        const supportsWebP = document.querySelector('html').classList.contains('webp');
+        
+        // If original is already WebP, return as is
+        if (src.endsWith('.webp')) return src;
+        
+        // For other formats, try to use WebP if supported
+        if (supportsWebP) {
+            return src.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+        }
+        
+        return src;
+    },
+
+    // Add support check for WebP
+    checkWebPSupport() {
+        const elem = document.createElement('canvas');
+        if (elem.getContext && elem.getContext('2d')) {
+            return elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+        }
+        return false;
+    }
+};
+
+// Check WebP support on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (imageOptimizer.checkWebPSupport()) {
+        document.querySelector('html').classList.add('webp');
+    }
+});
+
+// Initialize the queue
+const imageQueue = new ImageLoadQueue(4);
+
 // Update image categories array to include 'fruit'
 const imageCategories = ['fruit', 'cartoon' ,'nature', 'creative', 'tech', 'flower','food'];
 
@@ -200,73 +295,73 @@ async function initGallery() {
     }
 }
 
-// Update renderGallery function to handle pagination
-function renderGallery(images, append = false) {
+// Updated renderGallery function with improved loading
+async function renderGallery(images, append = false) {
     if (!append) {
         galleryContainer.innerHTML = '';
         currentLoadedItems = ITEMS_PER_PAGE;
     }
-    
+
     if (images.length === 0) {
         galleryContainer.innerHTML = `
             <div class="no-results">
                 <i class="fas fa-search"></i>
                 <p>No images found in this category</p>
-                <button class="reset-filter" onclick="resetFilter()">
-                    Show all images
-                </button>
+                <button class="reset-filter" onclick="resetFilter()">Show all images</button>
             </div>
         `;
         updateLoadMoreButton(images);
         return;
     }
-    
-    const itemsToRender = images.slice(
-        append ? currentLoadedItems - LOAD_MORE_COUNT : 0,
-        currentLoadedItems
-    );
-    
+
+    const startIndex = append ? currentLoadedItems - LOAD_MORE_COUNT : 0;
+    const itemsToRender = images.slice(startIndex, currentLoadedItems);
+
+    // Preload batch of images before rendering
+    await preloadImages(itemsToRender, 0, itemsToRender.length);
+
+    // Create document fragment for better performance
+    const fragment = document.createDocumentFragment();
+
     itemsToRender.forEach((image, index) => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item fade-in';
         galleryItem.dataset.category = image.category;
         
-        const img = new Image();
-        img.src = image.src;
-        
-        img.onload = () => {
-            galleryItem.innerHTML = `
-                <div class="image-container">
-                    <img src="${image.src}" 
-                        alt="${image.category}"
-                        loading="lazy"
-                    >
-                </div>
-                <div class="gallery-actions">
-                    <button class="action-btn download-btn" data-src="${image.src}">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn share-btn" data-src="${image.src}">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
-                </div>
-            `;
-            
-            galleryItem.addEventListener('click', (e) => {
-                if (!e.target.closest('.action-btn')) {
-                    openModal(images, index);
-                }
-            });
-        };
-        
-        img.onerror = () => {
-            handleImageError(img);
-        };
-        
-        galleryContainer.appendChild(galleryItem);
+        galleryItem.innerHTML = `
+            <div class="image-container">
+                <img src="${image.src}" 
+                    alt="${image.category}"
+                    loading="lazy"
+                    decoding="async"
+                >
+            </div>
+            <div class="gallery-actions">
+                <button class="action-btn download-btn" data-src="${image.src}">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="action-btn share-btn" data-src="${image.src}">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+        `;
+
+        galleryItem.addEventListener('click', (e) => {
+            if (!e.target.closest('.action-btn')) {
+                openModal(images, index);
+            }
+        });
+
+        fragment.appendChild(galleryItem);
     });
-    
+
+    galleryContainer.appendChild(fragment);
     updateLoadMoreButton(images);
+
+    // Start preloading next batch
+    if (currentLoadedItems < images.length) {
+        preloadImages(images, currentLoadedItems, LOAD_MORE_COUNT);
+    }
 }
 
 // Add function to handle load more button
