@@ -3,58 +3,58 @@ const imageData = [
     {
         id: 1,
         src: "./pic5.jpg",
-        title: "Mountain Sunrise",
-        description: "Beautiful sunrise over the mountains",
-        category: "nature"
+        title: "Flower",
+        description: "Red Queen",
+        category: "flower"
     },
     {
         id: 2,
         src: "./pic6.jpg",
-        title: "Urban Skyline",
-        description: "City skyline at dusk",
-        category: "city"
+        title: "Flower 2",
+        description: "Red Queen",
+        category: "flower"
     },
     {
         id: 3,
         src: "./pic7.jpg",
-        title: "Ocean Waves",
+        title: "Nature",
         description: "Crashing waves at sunset",
         category: "nature"
     },
     {
         id: 4,
         src: "./pic8.jpg",
-        title: "Street Photography",
+        title: "Nature 2",
         description: "Urban life in black and white",
-        category: "city"
+        category: "nature"
     },
     {
         id: 5,
         src: "./pic7.jpg",
-        title: "Portrait Study",
+        title: "Nature 3",
         description: "Artistic portrait photography",
-        category: "people"
+        category: "nature"
     },
     {
         id: 6,
         src: "./pic8.jpg",
-        title: "Abstract Lights",
+        title: "Nature 4",
         description: "Colorful light painting",
-        category: "abstract"
+        category: "nature"
     },
     {
         id: 7,
         src: "./pic6.jpg",
-        title: "Forest Path",
+        title: "Flower 3",
         description: "Pathway through a misty forest",
-        category: "nature"
+        category: "flower"
     },
     {
         id: 8,
         src: "./pic6.jpg",
-        title: "Urban Architecture",
+        title: "Flower 4",
         description: "Modern architectural detail",
-        category: "city"
+        category: "flower"
     }
 ];
 
