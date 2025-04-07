@@ -101,6 +101,22 @@ function renderGallery(images) {
         galleryItem.dataset.category = image.category;
         galleryItem.style.animationDelay = `${index * 50}ms`;
         
+        galleryItem.innerHTML = `
+            <img src="${image.src}" alt="${image.title}">
+            <div class="overlay">
+                <h3 class="title">${image.title}</h3>
+                <p class="description">${image.description}</p>
+                <div class="gallery-actions">
+                    <button class="action-btn download-btn" data-src="${image.src}">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button class="action-btn share-btn" data-title="${image.title}" data-src="${image.src}">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
+            </div>
+        `;
+        
         // Create image element
         const img = new Image();
         img.src = image.src;
@@ -112,6 +128,14 @@ function renderGallery(images) {
             <div class="overlay">
                 <h3 class="title">${image.title}</h3>
                 <p class="description">${image.description}</p>
+                <div class="gallery-actions">
+                    <button class="action-btn download-btn" data-src="${image.src}">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button class="action-btn share-btn" data-title="${image.title}" data-src="${image.src}">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
             </div>
         `;
         
@@ -260,6 +284,47 @@ const setupLazyLoading = () => {
         });
     }
 };
+
+// Add these functions after your existing code
+function handleDownload(imageSrc) {
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = imageSrc.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function handleShare(title, imageSrc) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            text: 'Check out this image from Swift Gallery',
+            url: window.location.origin + '/' + imageSrc
+        }).catch(console.error);
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        const dummy = document.createElement('input');
+        const url = window.location.origin + '/' + imageSrc;
+        document.body.appendChild(dummy);
+        dummy.value = url;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('Link copied to clipboard!');
+    }
+}
+
+// Add event delegation for the buttons
+galleryContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('download-btn')) {
+        e.stopPropagation(); // Prevent modal from opening
+        handleDownload(e.target.dataset.src);
+    } else if (e.target.classList.contains('share-btn')) {
+        e.stopPropagation(); // Prevent modal from opening
+        handleShare(e.target.dataset.title, e.target.dataset.src);
+    }
+});
 
 // Initial call to setup
 initGallery();
