@@ -4,7 +4,7 @@ const imageCategories = ['fruit', 'nature', 'tech', 'flower','food'];
 const imageData = [
     { src: "./Photo/pic7.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature" },
-    { src: "./Photo/pic7.jpg", category: "nature" },
+    // { src: "./Photo/pic7.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature" },
     { src: "./Photo/pic8.png", category: "nature" },
     { src: "./Photo/pic3.jpg", category: "nature" },
@@ -42,11 +42,10 @@ const imageData = [
 
     { src: "./Photo/25.jpg", category: "tech" },
     { src: "./Photo/26.jpg", category: "tech" },
+    { src: "./Photo/24.jpg", category: "tech" },
  
     { src: "./Photo/pic5.jpg", category: "flower" },
-    { src: "./Photo/pic6.jpg", category: "flower" },
-    { src: "./Photo/pic6.jpg", category: "flower" },
-    { src: "./Photo/pic6.jpg", category: "flower" },
+
 
 
 
