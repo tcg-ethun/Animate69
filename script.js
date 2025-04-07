@@ -359,15 +359,24 @@ function nextImage() {
 
 // Update filterGallery function
 function filterGallery(category) {
+    // Store category in localStorage
     localStorage.setItem('currentCategory', category);
     currentCategory = category;
     
+    // Filter images without randomizing first
     let filtered = category === 'all' 
-        ? getRandomImages()
-        : getRandomImages().filter(image => image.category === category);
+        ? [...imageData]
+        : imageData.filter(img => img.category === category);
+    
+    // Then randomize the filtered results
+    filtered = filtered.reduce((shuffledArray, currentItem) => {
+        const randomPosition = Math.floor(Math.random() * (shuffledArray.length + 1));
+        shuffledArray.splice(randomPosition, 0, currentItem);
+        return shuffledArray;
+    }, []);
     
     filteredImages = filtered;
-    currentLoadedItems = ITEMS_PER_PAGE; // Reset pagination
+    currentLoadedItems = ITEMS_PER_PAGE;
     
     loadingIndicator.style.display = 'flex';
     setTimeout(() => {
@@ -507,10 +516,11 @@ async function updateImageData() {
 function renderFilterButtons() {
     const filterContainer = document.querySelector('.filter-section');
     const counts = getCategoryCounts();
+    const savedCategory = localStorage.getItem('currentCategory') || 'all';
     
     filterContainer.innerHTML = `
-        <button class="all-photos-btn active" data-filter="all">
-            ${categoryLabels.all} <span class="category-count">(${counts.all})</span>
+        <button class="all-photos-btn" data-filter="${savedCategory}">
+            ${categoryLabels[savedCategory]} <span class="category-count">(${counts[savedCategory]})</span>
         </button>
         <button class="show-all-categories">
             <i class="fas fa-th-large"></i>
@@ -518,10 +528,12 @@ function renderFilterButtons() {
         </button>
     `;
     
-    // Add event listeners
+    // Update event listener for all-photos-btn
     const allPhotosBtn = filterContainer.querySelector('.all-photos-btn');
     allPhotosBtn.addEventListener('click', () => {
-        filterGallery('all');
+        // Filter by the current category stored in data-filter
+        const currentFilter = allPhotosBtn.dataset.filter;
+        filterGallery(currentFilter);
     });
     
     initCategoryPopup();
@@ -550,17 +562,22 @@ function initCategoryPopup() {
             `).join('')}
         `;
         
-        // Add click handlers
+        // Update click handlers for category cards
         categoriesGrid.querySelectorAll('.category-card').forEach(card => {
             card.addEventListener('click', () => {
                 const category = card.dataset.category;
+                
+                // Update localStorage and current category
+                localStorage.setItem('currentCategory', category);
+                currentCategory = category;
+                
+                // Update main filter button text and data-filter attribute
+                const allPhotosBtn = document.querySelector('.all-photos-btn');
+                allPhotosBtn.textContent = `${categoryLabels[category]} (${counts[category]})`;
+                allPhotosBtn.dataset.filter = category;
+                
                 filterGallery(category);
                 closePopup();
-                
-                // Update active state of filter buttons
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.filter === category);
-                });
             });
         });
     }
@@ -686,24 +703,22 @@ window.addEventListener('scroll', handleScroll);
 document.addEventListener('DOMContentLoaded', () => {
     renderFilterButtons();
     
-    // Set initial active filter button based on saved category
+    // Get saved category
     const savedCategory = localStorage.getItem('currentCategory') || 'all';
-    const filterBtn = document.querySelector(`[data-filter="${savedCategory}"]`);
+    const counts = getCategoryCounts();
     
-    if (filterBtn) {
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        filterBtn.classList.add('active');
-        
-        // Apply filter with randomization
-        filterGallery(savedCategory);
-    }
+    // Update main filter button text
+    const allPhotosBtn = document.querySelector('.all-photos-btn');
+    allPhotosBtn.textContent = `${categoryLabels[savedCategory]} (${counts[savedCategory]})`;
+    
+    // Apply the saved category filter directly
+    filterGallery(savedCategory);
     
     initViewSwitcher();
     renderRecentImages();
     initCategoryPopup();
     initSettings();
+    initSlideshow();
 });
 
 // Lazy loading implementation
@@ -817,6 +832,104 @@ function handleImageError(img) {
     img.src = './Photo/loading.png';
 }
 
+// Add slideshow functionality
+function initSlideshow() {
+    const track = document.querySelector('.slideshow-track');
+    let usedIndexes = new Set();
+    let slideInterval;
+    let isAnimating = false;
+
+    function getRandomIndex(images) {
+        // Reset used indexes if all images have been shown
+        if (usedIndexes.size >= images.length) {
+            usedIndexes.clear();
+        }
+
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * images.length);
+        } while (usedIndexes.has(randomIndex));
+
+        usedIndexes.add(randomIndex);
+        return randomIndex;
+    }
+
+    function updateSlide() {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const currentSlide = track.querySelector('.slide-item.active');
+        const currentCategory = localStorage.getItem('currentCategory') || 'all';
+        const images = currentCategory === 'all' ? 
+            imageData : 
+            imageData.filter(img => img.category === currentCategory);
+
+        // Get random image
+        const randomIndex = getRandomIndex(images);
+        const randomImage = images[randomIndex];
+
+        // Create new slide
+        const newSlide = document.createElement('div');
+        newSlide.className = 'slide-item';
+        newSlide.innerHTML = `
+            <img src="${randomImage.src}" 
+                 alt="${randomImage.category}" 
+                 loading="lazy">
+        `;
+
+        // Add new slide to track
+        track.appendChild(newSlide);
+
+        // Trigger reflow
+        newSlide.offsetHeight;
+
+        // Start animation
+        if (currentSlide) {
+            currentSlide.classList.add('exit');
+        }
+        newSlide.classList.add('active');
+
+        // Clean up after animation
+        setTimeout(() => {
+            if (currentSlide) {
+                track.removeChild(currentSlide);
+            }
+            isAnimating = false;
+        }, 800);
+    }
+
+    function startSlideshow() {
+        if (slideInterval) clearInterval(slideInterval);
+        updateSlide();
+        slideInterval = setInterval(updateSlide, 3000);
+    }
+
+    // Initialize and start slideshow
+    startSlideshow();
+
+    // Event Listeners
+    const prevBtn = document.querySelector('.prev-slide');
+    const nextBtn = document.querySelector('.next-slide');
+
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        clearInterval(slideInterval);
+        updateSlide();
+        startSlideshow();
+    });
+
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        clearInterval(slideInterval);
+        updateSlide();
+        startSlideshow();
+    });
+
+    track.addEventListener('mouseenter', () => clearInterval(slideInterval));
+    track.addEventListener('mouseleave', startSlideshow);
+}
+
 // Initial call to setup
 initGallery();
 checkForNewImages();
+initSlideshow();
