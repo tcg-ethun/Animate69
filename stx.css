@@ -18,9 +18,8 @@ body {
 
 /* Header styles */
 header {
-    background: linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b);
+    background: black;
     color: white;
-    padding: 1rem 0;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     position: sticky;
     top: 0;
@@ -30,7 +29,7 @@ header {
 
 header.scrolled {
     padding: 0.5rem 0;
-    background: rgba(58, 28, 113, 0.95);
+    background:hidden;
     backdrop-filter: blur(10px);
 }
 

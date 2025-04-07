@@ -2,7 +2,7 @@
 const imageData = [
     {
         id: 1,
-        src: "./pic5.png",
+        src: "./pic5.jpg",
         title: "Mountain Sunrise",
         description: "Beautiful sunrise over the mountains",
         category: "nature"
@@ -68,8 +68,6 @@ const modalClose = document.getElementById('modal-close');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 const filterBtns = document.querySelectorAll('.filter-btn');
-const uploadArea = document.getElementById('upload-area');
-const uploadInput = document.getElementById('upload-input');
 const header = document.getElementById('header');
 const loadingIndicator = document.getElementById('loading');
 
@@ -81,10 +79,11 @@ let filteredImages = [...imageData];
 function initGallery() {
     loadingIndicator.style.display = 'flex';
     
+    // Reduce timeout to make loading faster
     setTimeout(() => {
         renderGallery(imageData);
         loadingIndicator.style.display = 'none';
-    }, 600);
+    }, 300); // Reduced from 600 to 300ms
 }
 
 // Render gallery items
@@ -102,20 +101,21 @@ function renderGallery(images) {
         galleryItem.dataset.category = image.category;
         galleryItem.style.animationDelay = `${index * 50}ms`;
         
+        // Create image element
         const img = new Image();
         img.src = image.src;
         img.alt = image.title;
         
-        img.onload = () => {
-            galleryItem.innerHTML = `
-                <img src="${image.src}" alt="${image.title}">
-                <div class="overlay">
-                    <h3 class="title">${image.title}</h3>
-                    <p class="description">${image.description}</p>
-                </div>
-            `;
-        };
+        // Set the HTML content immediately instead of waiting for onload
+        galleryItem.innerHTML = `
+            <img src="${image.src}" alt="${image.title}">
+            <div class="overlay">
+                <h3 class="title">${image.title}</h3>
+                <p class="description">${image.description}</p>
+            </div>
+        `;
         
+        // Add error handler
         img.onerror = () => {
             console.error(`Failed to load image: ${image.src}`);
             galleryItem.innerHTML = `
@@ -187,43 +187,6 @@ function handleScroll() {
     }
 }
 
-// Upload functionality
-function handleUpload(files) {
-    if (!files || files.length === 0) return;
-    
-    loadingIndicator.style.display = 'flex';
-    
-    // Simulate upload process
-    setTimeout(() => {
-        const newImages = Array.from(files).map((file, index) => {
-            // Create object URL for preview
-            const src = URL.createObjectURL(file);
-            return {
-                id: imageData.length + index + 1,
-                src: src,
-                title: file.name.split('.')[0],
-                description: `Uploaded image ${index + 1}`,
-                category: 'abstract' // Default category
-            };
-        });
-        
-        // Add new images to the data array
-        imageData.unshift(...newImages);
-        
-        // Reset filter to show all images including new ones
-        filterBtns.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.filter === 'all') {
-                btn.classList.add('active');
-            }
-        });
-        
-        // Rerender gallery
-        renderGallery(imageData);
-        loadingIndicator.style.display = 'none';
-    }, 1500);
-}
-
 // Event listeners
 modalClose.addEventListener('click', closeModal);
 prevBtn.addEventListener('click', prevImage);
@@ -235,29 +198,6 @@ filterBtns.forEach(btn => {
         btn.classList.add('active');
         filterGallery(btn.dataset.filter);
     });
-});
-
-uploadArea.addEventListener('click', () => {
-    uploadInput.click();
-});
-
-uploadInput.addEventListener('change', (e) => {
-    handleUpload(e.target.files);
-});
-
-uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('dragover');
-});
-
-uploadArea.addEventListener('dragleave', () => {
-    uploadArea.classList.remove('dragover');
-});
-
-uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-    handleUpload(e.dataTransfer.files);
 });
 
 // Keyboard navigation
