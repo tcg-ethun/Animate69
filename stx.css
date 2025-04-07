@@ -1153,3 +1153,67 @@ footer {
         font-size: 1rem;
     }
 }
+
+/* Recent images section styles */
+.recent-section {
+    margin-bottom: 2rem;
+}
+
+.recent-section h3 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.recent-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #3a1c71 #f0f0f0;
+}
+
+.recent-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.recent-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.recent-container::-webkit-scrollbar-thumb {
+    background: #3a1c71;
+    border-radius: 10px;
+}
+
+.recent-item {
+    flex: 0 0 200px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+}
+
+.recent-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.recent-item:hover img {
+    transform: scale(1.05);
+}
+
+.recent-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(58, 28, 113, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}

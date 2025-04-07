@@ -31,7 +31,35 @@ const imageData = [
     {
         src: "./pic6.jpg",
         category: "flower"
-    }
+    },
+    {
+        src: "./pic3.png",
+        category: "tech"
+    },
+    {
+        src: "./pic8.png",
+        category: "nature"
+    },
+    {
+        src: "./pic9.png",
+        category: "nature"
+    },
+    {
+        src: "./pic5.png",
+        category: "nature"
+    },
+    {
+        src: "./pic4.png",
+        category: "tech"
+    },
+    {
+        src: "./pic2.jpg",
+        category: "tech"
+    },
+    {
+        src: "./pic3.jpg",
+        category: "nature"
+    },
 ];
 
 // DOM elements
@@ -46,6 +74,7 @@ const nextBtn = document.getElementById('next-btn');
 const filterBtns = document.querySelectorAll('.filter-btn');
 const header = document.getElementById('header');
 const loadingIndicator = document.getElementById('loading');
+const recentContainer = document.getElementById('recent-container');
 
 // Add these variables at the top
 let currentView = localStorage.getItem('galleryView') || 'grid';
@@ -58,6 +87,9 @@ let filteredImages = [...imageData];
 let currentZoom = 1;
 const zoomLevels = [1, 1.5, 2, 2.5, 3];
 let currentZoomIndex = 0;
+
+// Add at the top with your other constants
+const RECENT_DAYS = 7; // Show images added within last 7 days
 
 // Update the loading indicator HTML
 function updateLoadingIndicator() {
@@ -318,6 +350,67 @@ function updateZoom() {
     modalImage.style.transform = `scale(${currentZoom})`;
 }
 
+// Add this function to check for recent images
+function isRecent(image) {
+    // Get the file's last modified date using its path
+    const filePath = image.src;
+    try {
+        const stats = require('fs').statSync(filePath);
+        const modifiedDate = new Date(stats.mtime);
+        const daysAgo = (new Date() - modifiedDate) / (1000 * 60 * 60 * 24);
+        return daysAgo <= RECENT_DAYS;
+    } catch (error) {
+        return false;
+    }
+}
+
+// Add function to render recent images
+function renderRecentImages() {
+    const recentImages = imageData.filter(isRecent);
+
+    if (recentImages.length === 0) {
+        recentContainer.parentElement.style.display = 'none';
+        return;
+    }
+
+    recentContainer.innerHTML = '';
+    recentImages.forEach((image, index) => {
+        const recentItem = document.createElement('div');
+        recentItem.className = 'recent-item';
+        recentItem.innerHTML = `
+            <img src="${image.src}" alt="${image.category}">
+            <span class="recent-badge">New</span>
+        `;
+
+        recentItem.addEventListener('click', () => {
+            openModal(recentImages, index);
+        });
+
+        recentContainer.appendChild(recentItem);
+    });
+}
+
+// Add function to check for new images periodically
+function checkForNewImages() {
+    const watchFolder = './'; // Your images folder path
+    require('fs').watch(watchFolder, (eventType, filename) => {
+        if (filename && filename.match(/\.(jpg|jpeg|png|gif)$/i)) {
+            // Update image data and re-render recent section
+            updateImageData().then(() => {
+                renderRecentImages();
+            });
+        }
+    });
+}
+
+// Function to update image data
+async function updateImageData() {
+    // This is where you would update your imageData array
+    // with any new images found in the directory
+    // For now, we'll just re-render with existing data
+    renderGallery(imageData);
+}
+
 // Event listeners
 modalClose.addEventListener('click', closeModal);
 prevBtn.addEventListener('click', prevImage);
@@ -358,6 +451,7 @@ window.addEventListener('scroll', handleScroll);
 document.addEventListener('DOMContentLoaded', () => {
     initViewSwitcher();
     initGallery();
+    renderRecentImages();
 });
 
 // Lazy loading implementation
@@ -467,3 +561,4 @@ galleryContainer.addEventListener('click', (e) => {
 
 // Initial call to setup
 initGallery();
+checkForNewImages();
