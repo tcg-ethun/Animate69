@@ -1,4 +1,3 @@
-
 // Sample image data
 const imageData = [
     {
@@ -10,49 +9,49 @@ const imageData = [
     },
     {
         id: 2,
-        src: "./pic6.png",
+        src: "./pic6.jpg",
         title: "Urban Skyline",
         description: "City skyline at dusk",
         category: "city"
     },
     {
         id: 3,
-        src: "./pic7.png",
+        src: "./pic7.jpg",
         title: "Ocean Waves",
         description: "Crashing waves at sunset",
         category: "nature"
     },
     {
         id: 4,
-        src: "./pic8.png",
+        src: "./pic8.jpg",
         title: "Street Photography",
         description: "Urban life in black and white",
         category: "city"
     },
     {
         id: 5,
-        src: "./pic7.png",
+        src: "./pic7.jpg",
         title: "Portrait Study",
         description: "Artistic portrait photography",
         category: "people"
     },
     {
         id: 6,
-        src: "./pic7.png",
+        src: "./pic8.jpg",
         title: "Abstract Lights",
         description: "Colorful light painting",
         category: "abstract"
     },
     {
         id: 7,
-        src: "./pic7.png",
+        src: "./pic6.jpg",
         title: "Forest Path",
         description: "Pathway through a misty forest",
         category: "nature"
     },
     {
         id: 8,
-        src: "./pic7.png",
+        src: "./pic6.jpg",
         title: "Urban Architecture",
         description: "Modern architectural detail",
         category: "city"
@@ -85,7 +84,7 @@ function initGallery() {
     setTimeout(() => {
         renderGallery(imageData);
         loadingIndicator.style.display = 'none';
-    }, 600); // Simulate loading
+    }, 600);
 }
 
 // Render gallery items
@@ -103,13 +102,28 @@ function renderGallery(images) {
         galleryItem.dataset.category = image.category;
         galleryItem.style.animationDelay = `${index * 50}ms`;
         
-        galleryItem.innerHTML = `
-            <img src="${image.src}" alt="${image.title}">
-            <div class="overlay">
-                <h3 class="title">${image.title}</h3>
-                <p class="description">${image.description}</p>
-            </div>
-        `;
+        const img = new Image();
+        img.src = image.src;
+        img.alt = image.title;
+        
+        img.onload = () => {
+            galleryItem.innerHTML = `
+                <img src="${image.src}" alt="${image.title}">
+                <div class="overlay">
+                    <h3 class="title">${image.title}</h3>
+                    <p class="description">${image.description}</p>
+                </div>
+            `;
+        };
+        
+        img.onerror = () => {
+            console.error(`Failed to load image: ${image.src}`);
+            galleryItem.innerHTML = `
+                <div class="error-placeholder">
+                    <p>Image failed to load</p>
+                </div>
+            `;
+        };
         
         galleryItem.addEventListener('click', () => openModal(images, index));
         galleryContainer.appendChild(galleryItem);
@@ -154,18 +168,10 @@ function nextImage() {
 
 // Filter gallery items
 function filterGallery(category) {
-    let filtered;
-    
-    if (category === 'all') {
-        filtered = imageData;
-    } else {
-        filtered = imageData.filter(image => image.category === category);
-    }
-    
+    let filtered = category === 'all' ? imageData : imageData.filter(image => image.category === category);
     filteredImages = filtered;
     
     loadingIndicator.style.display = 'flex';
-    
     setTimeout(() => {
         renderGallery(filtered);
         loadingIndicator.style.display = 'none';
