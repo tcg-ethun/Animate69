@@ -40,14 +40,14 @@ const imageData = [
         src: "./pic8.png",
         category: "nature"
     },
-    {
-        src: "./pic9.png",
-        category: "nature"
-    },
-    {
-        src: "./pic5.png",
-        category: "nature"
-    },
+    // {
+    //     src: "./pic9.png",
+    //     category: "nature"
+    // },
+    // {
+    //     src: "./pic5.png",
+    //     category: "nature"
+    // },
     {
         src: "./pic4.png",
         category: "tech"
@@ -96,7 +96,7 @@ function updateLoadingIndicator() {
     const loadingIndicator = document.getElementById('loading');
     loadingIndicator.innerHTML = `
         <div class="loader"></div>
-        <div class="loading-text">Loading</div>
+        <div class="loading-text"> </div>
     `;
 }
 
@@ -173,8 +173,11 @@ function renderGallery(images) {
         
         img.onerror = () => {
             galleryItem.innerHTML = `
-                <div class="error-placeholder">
-                    <p>Image failed to load</p>
+                <div class="image-container">
+                    <img src="./loading.png" 
+                        alt="Image failed to load"
+                        class="error-image"
+                    >
                 </div>
             `;
         };
@@ -226,6 +229,7 @@ function updateModal(imageData) {
                 alt="${imageData.category}"
                 class="modal-image"
                 style="transform: scale(${currentZoom})"
+                onerror="this.onerror=null; this.src='./loading.png';"
             >
             <div class="zoom-controls">
                 <button class="zoom-btn zoom-out" aria-label="Zoom out">

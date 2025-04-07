@@ -242,6 +242,15 @@ main {
     text-align: center;
 }
 
+/* Add error image styles */
+.error-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    padding: 1rem;
+}
+
 /* Modal styles */
 .modal {
     position: fixed;
@@ -297,6 +306,15 @@ main {
     max-height: 100%;
     object-fit: contain;
     display: block;
+}
+
+/* Update modal error image handling */
+.modal-image-container img.modal-image[src="./loading.png"] {
+    object-fit: contain;
+    background-color: #f8f9fa;
+    padding: 2rem;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
 /* Modal close button styles */
