@@ -307,6 +307,11 @@ function renderGallery(images, append = false) {
         };
         preloader.src = image.src;
 
+        // Add click event for preview
+        galleryItem.addEventListener('click', () => {
+            openModal(images, startIndex + index);
+        });
+
         galleryContainer.appendChild(galleryItem);
     });
 
@@ -358,56 +363,93 @@ function resetFilter() {
     }
 }
 
-// Add these functions for modal navigation
-function updateModal(index) {
-    const image = filteredImages[index];
-    if (!image) return;
-    
-    modalImage.src = image.src;
-    modalTitle.textContent = image.category;
+// Add preview functionality
+function openModal(images, index) {
+    const modal = document.getElementById('modal');
     currentIndex = index;
     
-    // Update navigation buttons
-    prevBtn.style.display = index === 0 ? 'none' : 'block';
-    nextBtn.style.display = index === filteredImages.length - 1 ? 'none' : 'block';
-}
-
-function openModal(images, index) {
+    // Add active class to start animations
     modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    updateModal(index);
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
+
+    updateModalContent(images[currentIndex]);
 }
 
-// Update event listeners
-prevBtn.addEventListener('click', () => {
-    if (currentIndex > 0) {
-        updateModal(currentIndex - 1);
-    }
-});
+function closeModal() {
+    const modal = document.getElementById('modal');
+    
+    // Add closing animation
+    modal.classList.remove('active');
+    modal.classList.add('closing');
+    
+    // Remove modal after animation
+    setTimeout(() => {
+        modal.classList.remove('closing');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }, 300);
+}
 
-nextBtn.addEventListener('click', () => {
-    if (currentIndex < filteredImages.length - 1) {
-        updateModal(currentIndex + 1);
-    }
-});
+function updateModalContent(image) {
+    modalImage.src = image.src;
+    modalTitle.textContent = image.category;
+    modalDescription.textContent = image.description || '';
+}
 
-modalClose.addEventListener('click', () => {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-});
+function updateNavigationButtons(images) {
+    prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
+    nextBtn.style.display = currentIndex === images.length - 1 ? 'none' : 'block';
+}
 
-// Add keyboard navigation
-document.addEventListener('keydown', (e) => {
-    if (modal.style.display === 'flex') {
-        if (e.key === 'ArrowLeft' && currentIndex > 0) {
-            updateModal(currentIndex - 1);
-        } else if (e.key === 'ArrowRight' && currentIndex < filteredImages.length - 1) {
-            updateModal(currentIndex + 1);
-        } else if (e.key === 'Escape') {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+// Add these functions for modal navigation
+document.addEventListener('DOMContentLoaded', () => {
+    const modalClose = document.getElementById('modal-close');
+    
+    modalClose.addEventListener('click', closeModal);
+
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
         }
-    }
+    });
+
+    // Handle escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    // Navigation buttons
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateModalContent(filteredImages[currentIndex]);
+            updateNavigationButtons(filteredImages);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < filteredImages.length - 1) {
+            currentIndex++;
+            updateModalContent(filteredImages[currentIndex]);
+            updateNavigationButtons(filteredImages);
+        }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (modal.style.display === 'flex') {
+            if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                prevBtn.click();
+            } else if (e.key === 'ArrowRight' && currentIndex < filteredImages.length - 1) {
+                nextBtn.click();
+            }
+        }
+    });
 });
 
 // Update filterGallery function
@@ -723,14 +765,6 @@ filterBtns.forEach(btn => {
         btn.classList.add('active');
         filterGallery(btn.dataset.filter);
     });
-});
-
-// Modal click outside to close
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
 });
 
 // Scroll event

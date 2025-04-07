@@ -69,6 +69,7 @@ const imageData = [
     { src: "./Photo/59.webp", category: "creative" },
     { src: "./Photo/60.webp", category: "creative" },
     { src: "./Photo/61.webp", category: "creative" },
+    { src: "./Photo/62.jpg", category: "nature" },
 
 
   
