@@ -14,6 +14,49 @@ function preloadImages(images, start, count) {
     }));
 }
 
+// Add loading tracker class
+class LoadingTracker {
+    constructor() {
+        this.totalImages = 0;
+        this.loadedImages = 0;
+        this.loadingIndicator = document.getElementById('loading');
+    }
+
+    reset() {
+        this.totalImages = 0;
+        this.loadedImages = 0;
+        this.showLoading();
+    }
+
+    addImage() {
+        this.totalImages++;
+    }
+
+    imageLoaded() {
+        this.loadedImages++;
+        this.updateProgress();
+    }
+
+    updateProgress() {
+        const progress = (this.loadedImages / this.totalImages) * 100;
+        if (this.loadedImages >= this.totalImages) {
+            this.hideLoading();
+        }
+    }
+
+    showLoading() {
+        this.loadingIndicator.style.display = 'flex';
+        this.loadingIndicator.style.opacity = '1';
+    }
+
+    hideLoading() {
+        this.loadingIndicator.style.opacity = '0';
+        setTimeout(() => {
+            this.loadingIndicator.style.display = 'none';
+        }, 300);
+    }
+}
+
 // Add this class for managing image loading queue
 class ImageLoadQueue {
     constructor(concurrency = 4) {
@@ -181,6 +224,9 @@ let currentLoadedItems = ITEMS_PER_PAGE;
 // Add global variables
 let isDarkMode = localStorage.getItem('darkMode') === 'true';
 
+// Add at the top with other constants
+const loadingTracker = new LoadingTracker();
+
 // Update the loading indicator HTML
 function updateLoadingIndicator() {
     const loadingIndicator = document.getElementById('loading');
@@ -213,111 +259,59 @@ async function initGallery() {
     }
 }
 
-// Updated renderGallery function with skeleton loading
-async function renderGallery(images, append = false) {
+// Update renderGallery function
+function renderGallery(images, append = false) {
     if (!append) {
         galleryContainer.innerHTML = '';
         currentLoadedItems = ITEMS_PER_PAGE;
-    }
-
-    if (images.length === 0) {
-        galleryContainer.innerHTML = `
-            <div class="no-results">
-                <i class="fas fa-search"></i>
-                <p>No images found in this category</p>
-                <button class="reset-filter" onclick="resetFilter()">Show all images</button>
-            </div>
-        `;
-        updateLoadMoreButton(images);
-        return;
+        // Reset loading tracker
+        loadingTracker.reset();
     }
 
     const startIndex = append ? currentLoadedItems - LOAD_MORE_COUNT : 0;
     const itemsToRender = images.slice(startIndex, currentLoadedItems);
 
-    // Create document fragment for better performance
-    const fragment = document.createDocumentFragment();
+    // Add total images to tracker
+    itemsToRender.forEach(() => loadingTracker.addImage());
 
     itemsToRender.forEach((image, index) => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item fade-in';
-        galleryItem.dataset.category = image.category;
         
         galleryItem.innerHTML = `
             <div class="image-container">
                 <div class="skeleton-loader"></div>
                 <img 
-                    data-src="${image.src}" 
-                    alt="${image.category}"
-                    loading="lazy"
-                    decoding="async"
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
+                    data-src="${image.src}"
                     class="gallery-image"
+                    alt="${image.category}"
                 >
-            </div>
-            <div class="gallery-actions">
-                <button class="action-btn download-btn" data-src="${image.src}">
-                    <i class="fas fa-download"></i>
-                </button>
-                <button class="action-btn share-btn" data-src="${image.src}">
-                    <i class="fas fa-share-alt"></i>
-                </button>
             </div>
         `;
 
-        // Set up image loading
         const img = galleryItem.querySelector('img');
-        img.onload = () => {
+        const skeleton = galleryItem.querySelector('.skeleton-loader');
+
+        // Create a new image object to preload
+        const preloader = new Image();
+        preloader.onload = () => {
+            // Once preloaded, set the actual src
+            img.src = image.src;
             img.classList.add('loaded');
-            galleryItem.querySelector('.skeleton-loader').style.display = 'none';
+            skeleton.style.display = 'none';
+            loadingTracker.imageLoaded();
         };
-        img.src = image.src; // Start loading the image
 
-        galleryItem.addEventListener('click', (e) => {
-            if (!e.target.closest('.action-btn')) {
-                openModal(images, index);
-            }
-        });
+        preloader.onerror = () => {
+            skeleton.style.backgroundColor = '#ffebee';
+            img.src = 'path/to/error-image.jpg';
+            loadingTracker.imageLoaded();
+        };
 
-        fragment.appendChild(galleryItem);
+        preloader.src = image.src;
+        galleryContainer.appendChild(galleryItem);
     });
-
-    galleryContainer.appendChild(fragment);
-    updateLoadMoreButton(images);
-
-    // Start preloading next batch
-    if (currentLoadedItems < images.length) {
-        preloadImages(images, currentLoadedItems, LOAD_MORE_COUNT);
-    }
-}
-
-// Update the preloadImages function to work with the new loading system
-function preloadImages(images, start, count) {
-    const preloadArray = images.slice(start, start + count);
-    return Promise.all(preloadArray.map(imageData => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                // Find and update any matching skeleton loaders
-                const galleryItems = document.querySelectorAll('.gallery-item');
-                galleryItems.forEach(item => {
-                    const loadingImg = item.querySelector(`img[data-src="${imageData.src}"]`);
-                    if (loadingImg) {
-                        loadingImg.classList.add('loaded');
-                        const skeleton = item.querySelector('.skeleton-loader');
-                        if (skeleton) {
-                            skeleton.style.display = 'none';
-                        }
-                    }
-                });
-                resolve(imageData);
-            };
-            img.onerror = () => {
-                console.warn(`Failed to load image: ${imageData.src}`);
-                resolve(imageData);
-            };
-            img.src = imageData.src;
-        });
-    }));
 }
 
 // Add function to handle load more button
