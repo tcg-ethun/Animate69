@@ -7,6 +7,33 @@ const defaultDownloadSettings = {
     quality: 100  // Set default to maximum quality
 };
 
+// Add retryCount to track loading attempts
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_DELAY = 2000; // 2 seconds
+
+function handleImageError(img, retryCount = 0) {
+    // Store original source
+    const originalSrc = img.dataset.originalSrc || img.src;
+    img.dataset.originalSrc = originalSrc;
+
+    if (retryCount < MAX_RETRY_ATTEMPTS) {
+        // Show loading image
+        img.src = './Photo/loading.png';
+        
+        // Attempt to reload the original image after delay
+        setTimeout(() => {
+            console.log(`Retrying to load image (attempt ${retryCount + 1})`);
+            img.onerror = () => handleImageError(img, retryCount + 1);
+            img.src = originalSrc;
+        }, RETRY_DELAY);
+    } else {
+        // After max retries, keep showing loading image and add error class
+        img.src = './Photo/loading.png';
+        img.classList.add('image-load-error');
+        showNotification('Failed to load image', 'error');
+    }
+}
+
 // Update the imageData structure to include timestamp
 const imageData = [
     {
@@ -15,7 +42,6 @@ const imageData = [
         timestamp: new Date().toISOString() // Current date as default
     },
     { src: "./Photo/pic8.jpg", category: "nature", timestamp: new Date().toISOString() },
-    // { src: "./Photo/pic7.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature", timestamp: new Date().toISOString() },
     { src: "./Photo/pic8.png", category: "nature", timestamp: new Date().toISOString() },
     { src: "./Photo/pic3.jpg", category: "nature", timestamp: new Date().toISOString() },
@@ -34,7 +60,6 @@ const imageData = [
     { src: "./Photo/30.jpg", category: "nature", timestamp: new Date().toISOString() },
     { src: "./Photo/31.jpg", category: "nature", timestamp: new Date().toISOString() },
     { src: "./Photo/32.jpg", category: "nature", timestamp: new Date().toISOString() },
-
 
     { src: "./Photo/1.jpg", category: "fruit", timestamp: new Date().toISOString() },
     { src: "./Photo/2.jpg", category: "fruit", timestamp: new Date().toISOString() },
@@ -56,12 +81,6 @@ const imageData = [
     { src: "./Photo/24.jpg", category: "tech", timestamp: new Date().toISOString() },
  
     { src: "./Photo/pic5.jpg", category: "flower", timestamp: new Date().toISOString() },
-
-
-
-
-
-
 ];
 
 // Add function to fetch and update timestamps from GitHub
@@ -101,8 +120,8 @@ async function updateImageTimestamps() {
             imageData.reduce((acc, img) => ({
                 ...acc,
                 [img.src]: img.timestamp
-            }), {})
-        ));
+            }), {}))
+        );
     } catch (error) {
         console.error('Error updating timestamps:', error);
     }
@@ -226,7 +245,7 @@ let filteredImages = [...imageData];
 
 // Add zoom functionality
 let currentZoom = 1;
-const zoomLevels = [1, 1.5, 2, 2.5, 3];
+const zoomLevels = [1, 1.5, 2, 2.5, 3,3.5,4,9];
 let currentZoomIndex = 0;
 
 // Add at the top with your other constants
@@ -301,25 +320,53 @@ function renderGallery(images, append = false) {
     itemsToRender.forEach((image, index) => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item fade-in';
+        galleryItem.setAttribute('role', 'listitem');
         galleryItem.dataset.category = image.category;
         
         const img = new Image();
         img.src = image.src;
+        img.loading = "lazy";
+        img.alt = `${categoryLabels[image.category]} photograph - ${image.src.split('/').pop().split('.')[0]}`;
+        img.onerror = () => handleImageError(img);
         
+        // Add loading state
+        img.onloadstart = () => {
+            img.src = './Photo/loading.png';
+        };
+        
+        // Handle successful load
         img.onload = () => {
+            if (img.src.includes('loading.png')) {
+                return; // Skip if it's the loading image
+            }
+            
+            // Add structured data
+            const jsonLD = {
+                "@context": "https://schema.org",
+                "@type": "ImageObject",
+                "contentUrl": image.src,
+                "description": img.alt,
+                "datePublished": image.timestamp,
+                "category": categoryLabels[image.category]
+            };
+            
             galleryItem.innerHTML = `
                 <div class="image-container">
-                    <img src="${image.src}" 
-                        alt="${image.category}"
-                        loading="lazy"
-                    >
+                    ${img.outerHTML}
+                    <script type="application/ld+json">
+                        ${JSON.stringify(jsonLD)}
+                    </script>
                 </div>
-                <div class="gallery-actions">
-                    <button class="action-btn download-btn" data-src="${image.src}">
-                        <i class="fas fa-download"></i>
+                <div class="gallery-actions" role="group" aria-label="Image actions">
+                    <button class="action-btn download-btn" 
+                            data-src="${image.src}"
+                            aria-label="Download image">
+                        <i class="fas fa-download" aria-hidden="true"></i>
                     </button>
-                    <button class="action-btn share-btn" data-src="${image.src}">
-                        <i class="fas fa-share-alt"></i>
+                    <button class="action-btn share-btn" 
+                            data-src="${image.src}"
+                            aria-label="Share image">
+                        <i class="fas fa-share-alt" aria-hidden="true"></i>
                     </button>
                 </div>
             `;
@@ -329,10 +376,6 @@ function renderGallery(images, append = false) {
                     openModal(images, index);
                 }
             });
-        };
-        
-        img.onerror = () => {
-            handleImageError(img);
         };
         
         galleryContainer.appendChild(galleryItem);
@@ -930,12 +973,6 @@ galleryContainer.addEventListener('click', (e) => {
         handleShare(target.dataset.src);
     }
 });
-
-// Error handling for images
-function handleImageError(img) {
-    img.onerror = null;
-    img.src = './Photo/loading.png';
-}
 
 // Add slideshow functionality
 function initSlideshow() {

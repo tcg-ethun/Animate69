@@ -315,12 +315,32 @@ main {
     overflow: hidden;
 }
 
-.gallery-item img {
+.image-container img {
     width: 100%;
     height: auto;
     display: block;
     transition: transform 0.5s ease;
     object-fit: cover;
+}
+
+.image-container img {
+    transition: opacity 0.3s ease;
+}
+
+.image-container img[src*="loading.png"] {
+    opacity: 0.7;
+    animation: pulse 1.5s infinite;
+}
+
+.image-load-error {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 0.4; }
+    100% { opacity: 0.7; }
 }
 
 .gallery-item:hover img {
