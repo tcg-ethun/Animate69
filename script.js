@@ -264,15 +264,22 @@ function renderGallery(images, append = false) {
     if (!append) {
         galleryContainer.innerHTML = '';
         currentLoadedItems = ITEMS_PER_PAGE;
-        // Reset loading tracker
-        loadingTracker.reset();
+    }
+
+    if (images.length === 0) {
+        galleryContainer.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>No images found in this category</p>
+                <button class="reset-filter" onclick="resetFilter()">Show all images</button>
+            </div>
+        `;
+        updateLoadMoreButton(images);
+        return;
     }
 
     const startIndex = append ? currentLoadedItems - LOAD_MORE_COUNT : 0;
     const itemsToRender = images.slice(startIndex, currentLoadedItems);
-
-    // Add total images to tracker
-    itemsToRender.forEach(() => loadingTracker.addImage());
 
     itemsToRender.forEach((image, index) => {
         const galleryItem = document.createElement('div');
@@ -281,12 +288,10 @@ function renderGallery(images, append = false) {
         galleryItem.innerHTML = `
             <div class="image-container">
                 <div class="skeleton-loader"></div>
-                <img 
-                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
-                    data-src="${image.src}"
-                    class="gallery-image"
-                    alt="${image.category}"
-                >
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
+                     data-src="${image.src}"
+                     class="gallery-image"
+                     alt="${image.category}">
             </div>
         `;
 
@@ -296,46 +301,42 @@ function renderGallery(images, append = false) {
         // Create a new image object to preload
         const preloader = new Image();
         preloader.onload = () => {
-            // Once preloaded, set the actual src
             img.src = image.src;
             img.classList.add('loaded');
             skeleton.style.display = 'none';
-            loadingTracker.imageLoaded();
         };
-
-        preloader.onerror = () => {
-            skeleton.style.backgroundColor = '#ffebee';
-            img.src = 'path/to/error-image.jpg';
-            loadingTracker.imageLoaded();
-        };
-
         preloader.src = image.src;
+
         galleryContainer.appendChild(galleryItem);
     });
+
+    updateLoadMoreButton(images);
 }
 
 // Add function to handle load more button
 function updateLoadMoreButton(images) {
-    let loadMoreBtn = document.querySelector('.load-more-btn');
+    const loadMoreBtn = document.querySelector('.load-more-btn');
+    const loadMoreButton = loadMoreBtn.querySelector('.load-more');
     
-    if (!loadMoreBtn) {
-        loadMoreBtn = document.createElement('div');
-        loadMoreBtn.className = 'load-more-btn';
-        document.querySelector('.gallery-container').after(loadMoreBtn);
-    }
+    if (!loadMoreBtn) return;
+
+    const remaining = images.length - currentLoadedItems;
     
-    if (currentLoadedItems < images.length) {
-        loadMoreBtn.innerHTML = `
-            <button class="load-more">
-                Load More <span>(${images.length - currentLoadedItems} more)</span>
-            </button>
-        `;
+    if (remaining > 0) {
         loadMoreBtn.style.display = 'flex';
         
-        loadMoreBtn.querySelector('button').addEventListener('click', () => {
-            currentLoadedItems += LOAD_MORE_COUNT;
-            renderGallery(images, true);
-        });
+        if (!loadMoreBtn.hasAttribute('data-listener')) {
+            loadMoreBtn.setAttribute('data-listener', 'true');
+            loadMoreButton.addEventListener('click', async () => {
+                loadMoreButton.classList.add('loading');
+                currentLoadedItems += LOAD_MORE_COUNT;
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await renderGallery(images, true);
+                
+                loadMoreButton.classList.remove('loading');
+            });
+        }
     } else {
         loadMoreBtn.style.display = 'none';
     }

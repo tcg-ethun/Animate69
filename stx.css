@@ -1592,9 +1592,17 @@ footer {
     transform: translateY(-2px);
 }
 
-.load-more span {
-    font-size: 0.85rem;
-    opacity: 0.8;
+.load-more .fa-spinner {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.load-more.loading .fa-spinner {
+    opacity: 1;
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
 }
 
 /* Show all categories button */
