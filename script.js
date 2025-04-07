@@ -257,16 +257,47 @@ function updateLoadingIndicator() {
     `;
 }
 
-// Update the filter function
-function filterImages(category = currentCategory) {
+// Update the filtering function
+function filterGallery(category) {
+    // Update current category and save to localStorage
     currentCategory = category;
     localStorage.setItem('currentCategory', category);
     
+    // Filter images
     filteredImages = category === 'all' 
-        ? [...imageData]
+        ? [...imageData] 
         : imageData.filter(img => img.category === category);
+    
+    // Reset loaded items count
+    currentLoadedItems = ITEMS_PER_PAGE;
+    
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loading');
+    loadingIndicator.style.display = 'flex';
+    
+    // Render gallery with filtered images
+    setTimeout(() => {
+        renderGallery(filteredImages);
+        loadingIndicator.style.display = 'none';
         
-    return filteredImages;
+        // Update category button states
+        updateCategoryButtons(category);
+    }, 300);
+}
+
+// Add function to update category buttons
+function updateCategoryButtons(activeCategory) {
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.category === activeCategory);
+    });
+    
+    // Update main filter button text
+    const allPhotosBtn = document.querySelector('.all-photos-btn');
+    if (allPhotosBtn) {
+        const counts = getCategoryCounts();
+        allPhotosBtn.textContent = `${categoryLabels[activeCategory]} (${counts[activeCategory]})`;
+        allPhotosBtn.dataset.filter = activeCategory;
+    }
 }
 
 // Update the initialization function
@@ -293,11 +324,14 @@ async function initGallery() {
 
 // Update renderGallery function
 function renderGallery(images, append = false) {
+    const galleryContainer = document.getElementById('gallery-container');
+    
+    // Clear container if not appending
     if (!append) {
         galleryContainer.innerHTML = '';
-        currentLoadedItems = ITEMS_PER_PAGE;
     }
 
+    // Show no results message if no images
     if (images.length === 0) {
         galleryContainer.innerHTML = `
             <div class="no-results">
@@ -310,9 +344,12 @@ function renderGallery(images, append = false) {
         return;
     }
 
+    // Get images to render
     const startIndex = append ? currentLoadedItems - LOAD_MORE_COUNT : 0;
-    const itemsToRender = images.slice(startIndex, currentLoadedItems);
+    const endIndex = Math.min(currentLoadedItems, images.length);
+    const itemsToRender = images.slice(startIndex, endIndex);
 
+    // Render each image
     itemsToRender.forEach((image, index) => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item fade-in';
@@ -327,10 +364,10 @@ function renderGallery(images, append = false) {
             </div>
         `;
 
+        // Handle image loading
         const img = galleryItem.querySelector('img');
         const skeleton = galleryItem.querySelector('.skeleton-loader');
 
-        // Create a new image object to preload
         const preloader = new Image();
         preloader.onload = () => {
             img.src = image.src;
@@ -347,6 +384,7 @@ function renderGallery(images, append = false) {
         galleryContainer.appendChild(galleryItem);
     });
 
+    // Update load more button
     updateLoadMoreButton(images);
 }
 
@@ -1263,6 +1301,19 @@ function updateButtonState(button, state) {
 }
 
 // Initial call to setup
-initGallery();
+document.addEventListener('DOMContentLoaded', () => {
+    // Get category from URL or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category') || localStorage.getItem('currentCategory') || 'all';
+    
+    // Apply initial filter
+    filterGallery(category);
+    
+    // Initialize other components
+    initCategoryPopup();
+    initViewSwitcher();
+    setupLazyLoading();
+    initSlideshow();
+});
 checkForNewImages();
 initSlideshow();
