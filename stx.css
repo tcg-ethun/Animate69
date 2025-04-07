@@ -1878,3 +1878,54 @@ body.dark-mode .slideshow-section h3 {
         height: 250px;
     }
 }
+
+/* Download settings styles */
+.download-settings {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 0.5rem;
+}
+
+.format-selector,
+.quality-selector {
+    margin-bottom: 1rem;
+}
+
+.format-selector label,
+.quality-selector label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+#downloadFormat {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    background: white;
+    font-family: inherit;
+}
+
+#imageQuality {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* Dark mode styles */
+body.dark-mode .download-settings {
+    background: #2d2d2d;
+}
+
+body.dark-mode #downloadFormat {
+    background: #1a1a1a;
+    border-color: #444;
+    color: #fff;
+}
+
+body.dark-mode .format-selector label,
+body.dark-mode .quality-selector label {
+    color: #ccc;
+}

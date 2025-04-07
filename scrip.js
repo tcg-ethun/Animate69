@@ -1,12 +1,6 @@
 // Update image categories array to include 'fruit'
 const imageCategories = ['fruit', 'nature', 'tech', 'flower','food'];
 
-// Add at the top with other constants
-const defaultDownloadSettings = {
-    format: 'original',
-    quality: 100  // Set default to maximum quality
-};
-
 const imageData = [
     { src: "./Photo/pic7.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature" },
@@ -76,57 +70,6 @@ const categoryIcons = {
     tech: 'fa-microchip',
     fruit: 'fa-apple-alt',
     food: 'fa-utensils'
-};
-
-// Add image conversion utility
-const imageConverter = {
-    async convertImage(imageUrl, format, quality) {
-        try {
-            // Create temporary image
-            const img = new Image();
-            const imageLoadPromise = new Promise((resolve, reject) => {
-                img.onload = () => resolve(img);
-                img.onerror = () => reject(new Error('Failed to load image'));
-            });
-            img.src = imageUrl;
-            await imageLoadPromise;
-
-            // Create canvas
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-
-            // Convert to desired format
-            let mimeType;
-            switch(format) {
-                case 'jpg':
-                case 'jpeg':
-                    mimeType = 'image/jpeg';
-                    break;
-                case 'png':
-                    mimeType = 'image/png';
-                    break;
-                case 'webp':
-                    mimeType = 'image/webp';
-                    break;
-                case 'tiff':
-                    mimeType = 'image/tiff';
-                    break;
-                default:
-                    mimeType = 'image/jpeg';
-            }
-
-            // Convert to blob
-            return new Promise(resolve => {
-                canvas.toBlob(blob => resolve(blob), mimeType, quality / 100);
-            });
-        } catch (error) {
-            console.error('Image conversion failed:', error);
-            throw error;
-        }
-    }
 };
 
 // Add this function after imageData declaration
@@ -397,7 +340,7 @@ function updateModal(imageData) {
     closeBtn.addEventListener('click', closeModal);
     zoomIn.addEventListener('click', handleZoomIn);
     zoomOut.addEventListener('click', handleZoomOut);
-    downloadBtn.addEventListener('click', () => handleDownload(imageData.src, downloadBtn));
+    downloadBtn.addEventListener('click', () => handleDownload(imageData.src));
     shareBtn.addEventListener('click', () => handleShare(imageData.src));
 }
 
@@ -656,7 +599,7 @@ function initCategoryPopup() {
     });
 }
 
-// Update initSettings function to properly handle format settings
+// Add settings functionality
 function initSettings() {
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsPopup = document.getElementById('settingsPopup');
@@ -710,62 +653,6 @@ function initSettings() {
         if (e.target === settingsPopup) {
             settingsPopup.classList.remove('active');
         }
-    });
-
-    // Initialize download settings
-    const formatSelect = document.getElementById('downloadFormat');
-    const qualitySlider = document.getElementById('imageQuality');
-    const qualityValue = document.getElementById('qualityValue');
-
-    // Load saved settings from localStorage with fallback to defaults
-    const savedFormat = localStorage.getItem('downloadFormat') || defaultDownloadSettings.format;
-    const savedQuality = localStorage.getItem('imageQuality') || defaultDownloadSettings.quality;
-
-    // Set initial values and update UI
-    if (formatSelect && qualitySlider && qualityValue) {
-        // Update format select
-        formatSelect.value = savedFormat;
-        
-        // Update quality slider and display
-        qualitySlider.value = savedQuality;
-        qualityValue.textContent = `${savedQuality}%`;
-        
-        // Format change handler
-        formatSelect.addEventListener('change', (e) => {
-            const selectedFormat = e.target.value;
-            localStorage.setItem('downloadFormat', selectedFormat);
-            showNotification(`Image format set to ${selectedFormat.toUpperCase()}`, 'success');
-        });
-        
-        // Quality change handlers
-        qualitySlider.addEventListener('input', (e) => {
-            // Real-time update while sliding
-            const value = e.target.value;
-            qualityValue.textContent = `${value}%`;
-        });
-
-        qualitySlider.addEventListener('change', (e) => {
-            // Update storage when sliding stops
-            const value = e.target.value;
-            localStorage.setItem('imageQuality', value);
-            showNotification(`Image quality set to ${value}%`, 'success');
-        });
-    }
-
-    // Update all download buttons to use current settings
-    updateDownloadButtons();
-}
-
-// Add this helper function to update all download buttons
-function updateDownloadButtons() {
-    document.querySelectorAll('.download-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const imageSrc = btn.dataset.src;
-            const format = localStorage.getItem('downloadFormat') || defaultDownloadSettings.format;
-            const quality = parseInt(localStorage.getItem('imageQuality')) || defaultDownloadSettings.quality;
-            await handleDownload(imageSrc, btn, format, quality);
-        });
     });
 }
 
@@ -868,43 +755,14 @@ const setupLazyLoading = () => {
     }
 };
 
-// Update handleDownload function to use passed format and quality
-async function handleDownload(imageSrc, button, format = 'original', quality = 100) {
-    try {
-        if (button) button.classList.add('loading');
-
-        let blob;
-        if (format === 'original') {
-            const response = await fetch(imageSrc);
-            blob = await response.blob();
-        } else {
-            blob = await imageConverter.convertImage(imageSrc, format, quality);
-        }
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        const extension = format === 'original' ? 
-            imageSrc.split('.').pop() : 
-            format;
-        
-        link.href = url;
-        link.download = `image_${Date.now()}.${extension}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        if (button) {
-            button.classList.remove('loading');
-            button.classList.add('success');
-            setTimeout(() => button.classList.remove('success'), 2000);
-            showNotification('Image downloaded successfully!', 'success');
-        }
-    } catch (error) {
-        console.error('Download failed:', error);
-        if (button) button.classList.remove('loading');
-        showNotification('Download failed. Please try again.', 'error');
-    }
+// Download handler function
+function handleDownload(imageSrc) {
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = imageSrc.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Update share handler
@@ -961,7 +819,7 @@ galleryContainer.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent modal from opening when clicking buttons
 
     if (target.classList.contains('download-btn')) {
-        handleDownload(target.dataset.src, target);
+        handleDownload(target.dataset.src);
     } else if (target.classList.contains('share-btn')) {
         handleShare(target.dataset.src);
     }
