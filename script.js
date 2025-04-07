@@ -259,6 +259,54 @@ async function initGallery() {
     }
 }
 
+// Add these functions for modal preview functionality
+function openModal(images, index) {
+    const modal = document.getElementById('modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalTitle = document.getElementById('modal-title');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    currentIndex = index;
+    
+    // Update modal content
+    modalImage.src = images[index].src;
+    modalTitle.textContent = images[index].category;
+    
+    // Update navigation buttons visibility
+    prevBtn.style.display = index === 0 ? 'none' : 'block';
+    nextBtn.style.display = index === images.length - 1 ? 'none' : 'block';
+    
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Add event listeners for navigation
+    prevBtn.onclick = () => navigateModal('prev', images);
+    nextBtn.onclick = () => navigateModal('next', images);
+}
+
+function navigateModal(direction, images) {
+    const modalImage = document.getElementById('modal-image');
+    const modalTitle = document.getElementById('modal-title');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    if (direction === 'prev' && currentIndex > 0) {
+        currentIndex--;
+    } else if (direction === 'next' && currentIndex < images.length - 1) {
+        currentIndex++;
+    }
+
+    // Update modal content
+    modalImage.src = images[currentIndex].src;
+    modalTitle.textContent = images[currentIndex].category;
+
+    // Update navigation buttons
+    prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
+    nextBtn.style.display = currentIndex === images.length - 1 ? 'none' : 'block';
+}
+
 // Update renderGallery function
 function renderGallery(images, append = false) {
     if (!append) {
@@ -294,6 +342,11 @@ function renderGallery(images, append = false) {
                      alt="${image.category}">
             </div>
         `;
+
+        // Add click event for preview
+        galleryItem.addEventListener('click', () => {
+            openModal(images, startIndex + index);
+        });
 
         const img = galleryItem.querySelector('img');
         const skeleton = galleryItem.querySelector('.skeleton-loader');
@@ -358,83 +411,88 @@ function resetFilter() {
     }
 }
 
-// Open modal with image
-function openModal(images, index) {
-    currentIndex = index;
-    filteredImages = images;
-    modal.classList.add('active');
-    currentZoom = 1;
-    currentZoomIndex = 0;
-    updateModal(images[index]);
-    document.body.style.overflow = 'hidden';
-}
+// Add event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modal-close');
 
-// Close modal
-function closeModal() {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-    currentZoom = 1;
-    currentZoomIndex = 0;
-}
+    // Close modal on click
+    modalClose.onclick = () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    };
 
-// Update modal content
-function updateModal(imageData) {
-    const modalContent = document.querySelector('.modal-content');
-    modalContent.innerHTML = `
-        <button class="modal-close" aria-label="Close modal">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="modal-image-container">
-            <img src="${imageData.src}" 
-                alt="${imageData.category}"
-                class="modal-image"
-                style="transform: scale(${currentZoom})"
-                onerror="handleImageError(this);"
-            >
-            <div class="zoom-controls">
-                <button class="zoom-btn zoom-out" aria-label="Zoom out">
-                    <i class="fas fa-search-minus"></i>
-                </button>
-                <button class="zoom-btn zoom-in" aria-label="Zoom in">
-                    <i class="fas fa-search-plus"></i>
-                </button>
-            </div>
-        </div>
-        <div class="gallery-actions">
-            <button class="action-btn download-btn" data-src="${imageData.src}">
-                <i class="fas fa-download"></i> Download
-            </button>
-            <button class="action-btn share-btn" data-src="${imageData.src}">
-                <i class="fas fa-share-alt"></i> Share
-            </button>
-        </div>
-    `;
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
 
-    // Add event listeners
-    const closeBtn = modalContent.querySelector('.modal-close');
-    const zoomIn = modalContent.querySelector('.zoom-in');
-    const zoomOut = modalContent.querySelector('.zoom-out');
-    const downloadBtn = modalContent.querySelector('.download-btn');
-    const shareBtn = modalContent.querySelector('.share-btn');
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (modal.style.display === 'flex') {
+            if (e.key === 'ArrowLeft') {
+                navigateModal('prev', filteredImages);
+            } else if (e.key === 'ArrowRight') {
+                navigateModal('next', filteredImages);
+            }
+        }
+    });
+});
+
+// Add these functions for modal navigation
+function updateModal(index) {
+    const image = filteredImages[index];
+    if (!image) return;
     
-    closeBtn.addEventListener('click', closeModal);
-    zoomIn.addEventListener('click', handleZoomIn);
-    zoomOut.addEventListener('click', handleZoomOut);
-    downloadBtn.addEventListener('click', () => handleDownload(imageData.src));
-    shareBtn.addEventListener('click', () => handleShare(imageData.src));
+    modalImage.src = image.src;
+    modalTitle.textContent = image.category;
+    currentIndex = index;
+    
+    // Update navigation buttons
+    prevBtn.style.display = index === 0 ? 'none' : 'block';
+    nextBtn.style.display = index === filteredImages.length - 1 ? 'none' : 'block';
 }
 
-// Navigate to previous image
-function prevImage() {
-    currentIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
-    updateModal(filteredImages[currentIndex]);
+function openModal(images, index) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    updateModal(index);
 }
 
-// Navigate to next image
-function nextImage() {
-    currentIndex = (currentIndex + 1) % filteredImages.length;
-    updateModal(filteredImages[currentIndex]);
-}
+// Update event listeners
+prevBtn.addEventListener('click', () => {
+    if (currentIndex > 0) {
+        updateModal(currentIndex - 1);
+    }
+});
+
+nextBtn.addEventListener('click', () => {
+    if (currentIndex < filteredImages.length - 1) {
+        updateModal(currentIndex + 1);
+    }
+});
+
+modalClose.addEventListener('click', () => {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+});
+
+// Add keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (modal.style.display === 'flex') {
+        if (e.key === 'ArrowLeft' && currentIndex > 0) {
+            updateModal(currentIndex - 1);
+        } else if (e.key === 'ArrowRight' && currentIndex < filteredImages.length - 1) {
+            updateModal(currentIndex + 1);
+        } else if (e.key === 'Escape') {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+});
 
 // Update filterGallery function
 function filterGallery(category) {
@@ -743,10 +801,6 @@ function updateGalleryView(view) {
 }
 
 // Event listeners
-modalClose.addEventListener('click', closeModal);
-prevBtn.addEventListener('click', prevImage);
-nextBtn.addEventListener('click', nextImage);
-
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
@@ -755,23 +809,11 @@ filterBtns.forEach(btn => {
     });
 });
 
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-    if (!modal.classList.contains('active')) return;
-    
-    if (e.key === 'Escape') {
-        closeModal();
-    } else if (e.key === 'ArrowLeft') {
-        prevImage();
-    } else if (e.key === 'ArrowRight') {
-        nextImage();
-    }
-});
-
 // Modal click outside to close
 modal.addEventListener('click', (e) => {
     if (e.target === modal) {
-        closeModal();
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 });
 
