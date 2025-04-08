@@ -168,19 +168,21 @@ const categoryLabels = {
     food: 'Foods',
     fruit: 'Fruits',
     nature: 'Nature',
-    tech: 'Technology'
+    tech: 'Technology',
+    animal: 'Animals'  // Added animal category
 };
 
 // Add category icons mapping
 const categoryIcons = {
     all: 'fa-images',
-    creative: 'creative',
-    cartoon: 'cartoon',
+    creative: 'fa-paint-brush',
+    cartoon: 'fa-smile',
     flower: 'fa-fan',
     nature: 'fa-leaf',
     tech: 'fa-microchip',
     fruit: 'fa-apple-alt',
-    food: 'fa-utensils'
+    food: 'fa-utensils',
+    animal: 'fa-paw'   // Added animal icon
 };
 
 // Add this function after imageData declaration

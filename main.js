@@ -1,4 +1,3 @@
-
 const imageData = [
     { src: "./Photo/pic3.jpg", category: "nature" },
     { src: "./Photo/pic5.jpg", category: "flower" },
@@ -123,17 +122,12 @@ const imageData = [
     { src: "./Photo/113.webp", category: "cartoon" },
     { src: "./Photo/114.webp", category: "cartoon" },
     { src: "./Photo/115.webp", category: "cartoon" },
-  
+    { src: "./Photo/116.webp", category: "nature" },
+    { src: "./Photo/117.webp", category: "nature" },
+    { src: "./Photo/118.webp", category: "nature" },
 
-
-
-  
-
-
-
-
-
-
-
-
+    // Add animal category images
+    { src: "./Photo/animal1.jpg", category: "animal" },
+    { src: "./Photo/animal2.jpg", category: "animal" },
+    { src: "./Photo/animal3.jpg", category: "animal" }
 ];
