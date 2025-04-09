@@ -21,6 +21,12 @@ const imageData = [
     { src: "./Photo/119.webp", category: "fruit" },
     { src: "./Photo/120.webp", category: "fruit" },
     { src: "./Photo/121.webp", category: "fruit" },
+    { src: "./Photo/122.webp", category: "fruit" },
+    { src: "./Photo/123.webp", category: "fruit" },
+    { src: "./Photo/124.webp", category: "fruit" },
+    { src: "./Photo/125.webp", category: "fruit" },
+    { src: "./Photo/126.webp", category: "fruit" },
+    { src: "./Photo/127.webp", category: "fruit" },
 
 
     { src: "./Photo/15.jpg", category: "nature" },
