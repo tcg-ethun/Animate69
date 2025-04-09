@@ -4,9 +4,6 @@ const imageData = [
     { src: "./Photo/pic7.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature" },
     { src: "./Photo/pic8.jpg", category: "nature" },
-   
-
-
     { src: "./Photo/1.jpg", category: "fruit" },
     { src: "./Photo/2.jpg", category: "fruit" },
     { src: "./Photo/3.jpg", category: "fruit" },
@@ -51,7 +48,6 @@ const imageData = [
     { src: "./Photo/42.jpg", category: "food" },
     { src: "./Photo/43.jpg", category: "food" },
     { src: "./Photo/44.jpg", category: "food" },
-
     { src: "./Photo/46.webp", category: "creative" },
     { src: "./Photo/47.webp", category: "creative" },
     { src: "./Photo/48.webp", category: "creative" },
@@ -69,7 +65,6 @@ const imageData = [
     { src: "./Photo/60.webp", category: "creative" },
     { src: "./Photo/61.webp", category: "creative" },
     { src: "./Photo/62.jpg", category: "nature" },
-
     { src: "./Photo/63.webp", category: "cartoon" },
     { src: "./Photo/64.webp", category: "cartoon" },
     { src: "./Photo/65.webp", category: "cartoon" },
@@ -125,9 +120,91 @@ const imageData = [
     { src: "./Photo/116.webp", category: "nature" },
     { src: "./Photo/117.webp", category: "nature" },
     { src: "./Photo/118.webp", category: "nature" },
-
-    // Add animal category images
     { src: "./Photo/animal1.jpg", category: "animal" },
     { src: "./Photo/animal2.jpg", category: "animal" },
     { src: "./Photo/animal3.jpg", category: "animal" }
 ];
+
+// Add aspect ratio constants
+const ASPECT_RATIOS = {
+    PORTRAIT: 'portrait',    // height > width
+    LANDSCAPE: 'landscape',  // width > height
+    SQUARE: 'square',       // width === height
+    PANORAMA: 'panorama'    // width > 2 * height
+};
+
+// Function to calculate aspect ratio type
+function getAspectRatioType(width, height) {
+    const ratio = width / height;
+    
+    if (ratio === 1) return ASPECT_RATIOS.SQUARE;
+    if (ratio >= 2) return ASPECT_RATIOS.PANORAMA;
+    if (ratio > 1) return ASPECT_RATIOS.LANDSCAPE;
+    return ASPECT_RATIOS.PORTRAIT;
+}
+
+// Preload images and calculate aspect ratios
+async function preloadImagesWithAspectRatio() {
+    return Promise.all(imageData.map(async (imgData) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                imgData.aspectRatio = getAspectRatioType(img.width, img.height);
+                resolve(imgData);
+            };
+            img.onerror = () => {
+                imgData.aspectRatio = ASPECT_RATIOS.LANDSCAPE; // Default fallback
+                resolve(imgData);
+            };
+            img.src = imgData.src;
+        });
+    }));
+}
+
+// Filter function that combines category and aspect ratio
+function filterImages(category = 'all', aspectRatio = 'all') {
+    let filtered = imageData;
+    
+    // Filter by category first
+    if (category !== 'all') {
+        filtered = filtered.filter(img => img.category === category);
+    }
+    
+    // Then filter by aspect ratio if specified
+    if (aspectRatio !== 'all') {
+        filtered = filtered.filter(img => img.aspectRatio === aspectRatio);
+    }
+    
+    return filtered;
+}
+
+// Initialize the gallery with aspect ratio support
+async function initGalleryWithAspectRatio() {
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loading');
+    loadingIndicator.style.display = 'flex';
+    
+    try {
+        // Preload images and calculate aspect ratios
+        await preloadImagesWithAspectRatio();
+        
+        // Initialize the gallery
+        const savedCategory = localStorage.getItem('currentCategory') || 'all';
+        const savedAspectRatio = localStorage.getItem('currentAspectRatio') || 'all';
+        
+        // Filter and display images
+        const filtered = filterImages(savedCategory, savedAspectRatio);
+        renderGallery(filtered);
+        
+        // Update UI to reflect current filters
+        updateFilterUI(savedCategory, savedAspectRatio);
+    } finally {
+        // Hide loading indicator
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+// Call this when the document is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initGalleryWithAspectRatio();
+});

@@ -4,7 +4,7 @@
     margin: 0;
     padding: 0;
     user-select: none;
-    cursor: none;
+    /* cursor: none; */
 }
 
 @font-face {
@@ -384,14 +384,8 @@ main {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.gallery-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-}
 
-.gallery-item:active {
-    transform: scale(0.95);
-}
+
 
 .image-container img {
     width: 100%;
@@ -421,10 +415,6 @@ main {
     100% { opacity: 0.7; }
 }
 
-.gallery-item:hover img {
-    transform: scale(1.05);
-}
-
 .gallery-item .overlay {
     position: absolute;
     bottom: 0;
@@ -441,7 +431,7 @@ main {
 }
 
 .gallery-item:hover .overlay {
-    transform: translateY(0);
+    /* transform: translateY(0); */
 }
 
 .gallery-item .title {
@@ -2481,4 +2471,90 @@ body.dark-mode .share-btn:hover {
 
 .modal-action-btn:not(.loading):hover i {
     transform: scale(1.1);
+}
+
+/* Aspect ratio filter styles */
+.aspect-ratio-filter {
+    margin-top: 1rem;
+    padding: 0.5rem 0;
+}
+
+.filter-group {
+    display: flex;
+    gap: 0.8rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.filter-group::-webkit-scrollbar {
+    display: none;
+}
+
+.aspect-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 20px;
+    background: white;
+    color: #212529;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'pop', sans-serif;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.aspect-btn i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.aspect-btn:hover {
+    border-color: #3a1c71;
+    color: #3a1c71;
+}
+
+.aspect-btn:hover i {
+    transform: scale(1.1);
+}
+
+.aspect-btn.active {
+    background: #3a1c71;
+    color: white;
+    border-color: #3a1c71;
+}
+
+/* Dark mode support */
+body.dark-mode .aspect-btn {
+    background: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+}
+
+body.dark-mode .aspect-btn:hover {
+    border-color: #3a1c71;
+    background: #232323;
+}
+
+body.dark-mode .aspect-btn.active {
+    background: #3a1c71;
+    border-color: #3a1c71;
+    color: #fff;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .aspect-ratio-filter {
+        margin-top: 0.8rem;
+    }
+
+    .aspect-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
 }
