@@ -27,6 +27,7 @@ const imageData = [
     { src: "./Photo/125.webp", category: "fruit" },
     { src: "./Photo/126.webp", category: "fruit" },
     { src: "./Photo/127.webp", category: "fruit" },
+    { src: "./Photo/128webp", category: "fruit" },
 
 
     { src: "./Photo/15.jpg", category: "nature" },
@@ -47,6 +48,11 @@ const imageData = [
     { src: "./Photo/30.jpg", category: "nature" },
     { src: "./Photo/31.jpg", category: "nature" },
     { src: "./Photo/32.jpg", category: "nature" },
+    { src: "./Photo/130.webp", category: "nature" },
+    { src: "./Photo/131.webp", category: "nature" },
+    { src: "./Photo/132.webp", category: "nature" },
+    { src: "./Photo/133.webp", category: "nature" },
+
     { src: "./Photo/33.jpg", category: "food" },
     { src: "./Photo/34.jpg", category: "food" },
     { src: "./Photo/35.jpg", category: "food" },
@@ -59,6 +65,9 @@ const imageData = [
     { src: "./Photo/42.jpg", category: "food" },
     { src: "./Photo/43.jpg", category: "food" },
     { src: "./Photo/44.jpg", category: "food" },
+    { src: "./Photo/129.webp", category: "food" },
+
+
     { src: "./Photo/46.webp", category: "creative" },
     { src: "./Photo/47.webp", category: "creative" },
     { src: "./Photo/48.webp", category: "creative" },
@@ -131,7 +140,5 @@ const imageData = [
     { src: "./Photo/116.webp", category: "nature" },
     { src: "./Photo/117.webp", category: "nature" },
     { src: "./Photo/118.webp", category: "nature" },
-    { src: "./Photo/animal1.jpg", category: "animal" },
-    { src: "./Photo/animal2.jpg", category: "animal" },
-    { src: "./Photo/animal3.jpg", category: "animal" }
+   
 ];
