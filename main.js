@@ -42,6 +42,12 @@ const imageData = [
     { src: "./Photo/24.jpg", category: "tech" },
     { src: "./Photo/25.jpg", category: "tech" },
     { src: "./Photo/26.jpg", category: "tech" },
+
+    { src: "./Photo/117.webp", category: "nature" },
+    { src: "./Photo/118.webp", category: "nature" },
+    { src: "./Photo/135.webp", category: "nature" },
+    { src: "./Photo/136.webp", category: "nature" },
+    { src: "./Photo/62.jpg", category: "nature" },
     { src: "./Photo/27.jpg", category: "nature" },
     { src: "./Photo/28.jpg", category: "nature" },
     { src: "./Photo/29.jpg", category: "nature" },
@@ -84,7 +90,21 @@ const imageData = [
     { src: "./Photo/59.webp", category: "creative" },
     { src: "./Photo/60.webp", category: "creative" },
     { src: "./Photo/61.webp", category: "creative" },
-    { src: "./Photo/62.jpg", category: "nature" },
+    { src: "./Photo/137.webp", category: "creative" },
+    { src: "./Photo/138.webp", category: "creative" },
+    { src: "./Photo/139.webp", category: "creative" },
+    { src: "./Photo/140.webp", category: "creative" },
+    { src: "./Photo/141.webp", category: "creative" },
+    { src: "./Photo/142.webp", category: "creative" },
+    { src: "./Photo/143.webp", category: "creative" },
+    { src: "./Photo/144.webp", category: "creative" },
+    { src: "./Photo/145.webp", category: "creative" },
+    { src: "./Photo/146.webp", category: "creative" },
+    { src: "./Photo/147.webp", category: "creative" },
+    { src: "./Photo/148.webp", category: "creative" },
+    { src: "./Photo/149.webp", category: "creative" },
+    
+
     { src: "./Photo/63.webp", category: "cartoon" },
     { src: "./Photo/64.webp", category: "cartoon" },
     { src: "./Photo/65.webp", category: "cartoon" },
@@ -138,7 +158,7 @@ const imageData = [
     { src: "./Photo/114.webp", category: "cartoon" },
     { src: "./Photo/115.webp", category: "cartoon" },
     { src: "./Photo/116.webp", category: "nature" },
-    { src: "./Photo/117.webp", category: "nature" },
-    { src: "./Photo/118.webp", category: "nature" },
-   
+  
+    { src: "./Photo/134.webp", category: "animal" },
+
 ];
